@@ -16,6 +16,7 @@
     "webpack-cli": "^3.3.12"
   },
   "dependencies": {
+    "js-cookie": "^2.2.1",
     "random-words": "^1.1.1"
   }
 }

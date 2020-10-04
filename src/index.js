@@ -1,14 +1,30 @@
 import "./style.css";
 var randomWords = require("random-words");
+var Cookies = require("js-cookie");
 
 const wordDisplay = document.querySelector("#words");
 const textInput = document.querySelector("#text-input");
+const highestWPM = document.querySelector("#highest-wpm");
 
 let wordCount = 25;
 let errorCount = 0;
 let wordList;
 let currentWordPosition = 0;
 let startTime = null;
+
+loadCookies();
+
+function loadCookies() {
+  var wpmCookie = Cookies.get("wpm") ? Cookies.get("wpm") : "XX";
+  highestWPM.innerHTML = `BEST: ${wpmCookie}`;
+}
+
+function setCookies(wpm) {
+  if (wpm > Cookies.get("wpm") || Cookies.get("wpm") == undefined) {
+    Cookies.set("wpm", wpm);
+    highestWPM.innerHTML = `BEST: ${wpm}`;
+  }
+}
 
 export function setWordCount(number) {
   wordCount = number;
@@ -68,7 +84,7 @@ function endTimer() {
   var totalCharacters = wordList.join(" ").length;
   console.log(totalCharacters);
   var adjustedWordsPerMinute =
-    (totalCharacters / 5 - errorCount) / (seconds / 60);
+    (totalCharacters / 5 - errorCount / 5) / (seconds / 60);
   adjustedWordsPerMinute =
     adjustedWordsPerMinute < 0 ? 0 : adjustedWordsPerMinute;
   document.querySelector("#wpm").innerHTML = `WPM: ${Math.floor(
@@ -76,6 +92,7 @@ function endTimer() {
   )} -- ACCURACY: ${Math.floor(
     ((totalCharacters - errorCount) / totalCharacters) * 100
   )}`;
+  setCookies(Math.floor(adjustedWordsPerMinute));
   startTime = null;
 }
 

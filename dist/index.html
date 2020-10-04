@@ -58,6 +58,16 @@
                 />
                 50
               </label>
+              <label class="btn btn-secondary">
+                <input
+                  type="radio"
+                  name="options"
+                  id="100"
+                  autocomplete="off"
+                  onclick="TypingTester.setWordCount(100);"
+                />
+                100
+              </label>
             </div>
           </div>
         </div>
@@ -83,6 +93,9 @@
         <div class="row top-padding">
           <div class="col">
             <h6 id="wpm">WPM: XX -- ACCURACY: XX</h2>
+          </div>
+          <div class="col">
+            <h6 align="right" id="highest-wpm"></h2>
           </div>
         </div>
       </div>
