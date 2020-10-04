@@ -5,7 +5,10 @@ const wordDisplay = document.querySelector("#words");
 const textInput = document.querySelector("#text-input");
 
 let wordCount = 25;
+let errorCount = 0;
+let wordList;
 let currentWordPosition = 0;
+let startTime = null;
 
 export function setWordCount(number) {
   wordCount = number;
@@ -21,10 +24,14 @@ textInput.addEventListener("input", (e) => {
       textInput.value = "";
     }
   } else {
-    if (getCurrentWord().startsWith(textInput.value)) {
-      textInput.classList.remove("wrong");
-    } else {
-      textInput.classList.add("wrong");
+    if (currentWordPosition == 0) {
+      startTime = startTime || new Date().getTime();
+    } else if (currentWordPosition < wordCount) {
+      if (getCurrentWord().startsWith(textInput.value)) {
+        textInput.classList.remove("wrong");
+      } else {
+        textInput.classList.add("wrong");
+      }
     }
   }
 });
@@ -33,10 +40,32 @@ function nextWord() {
   if (getCurrentWord() === textInput.value) {
     highlightCorrect(currentWordPosition++);
   } else {
+    errorCount++;
     highlightIncorrect(currentWordPosition++);
   }
+  if (currentWordPosition == wordCount) {
+    endTimer();
+  } else {
+    highlightWord(currentWordPosition);
+  }
   textInput.classList.remove("wrong");
-  highlightWord(currentWordPosition);
+}
+
+function endTimer() {
+  var endTime = new Date().getTime();
+  var difference = endTime - startTime;
+
+  var seconds = (difference % (1000 * 60)) / 1000;
+  console.log(seconds);
+  var totalCharacters = wordList.join("").length;
+  var adjustedWordsPerMinute =
+    (totalCharacters / 5 - errorCount) / (seconds / 60);
+  adjustedWordsPerMinute =
+    adjustedWordsPerMinute < 0 ? 0 : adjustedWordsPerMinute;
+  document.querySelector("#wpm").innerHTML = `WPM: ${Math.floor(
+    adjustedWordsPerMinute
+  )} -- ACCURACY: ${Math.floor(((wordCount - errorCount) / wordCount) * 100)}`;
+  startTime = null;
 }
 
 function getCurrentWord() {
@@ -66,9 +95,9 @@ function highlightIncorrect(position) {
   word.classList.add("incorrect");
 }
 
-function loadWords() {
+export function loadWords() {
   removeAllChildNodes(wordDisplay);
-  var wordList = randomWords(wordCount);
+  wordList = randomWords(wordCount);
   var div = document.createElement("div");
   wordList.forEach((word) => {
     var span = document.createElement("span");
@@ -77,6 +106,7 @@ function loadWords() {
   });
   highlightWord(0);
   currentWordPosition = 0;
+  errorCount = 0;
   textInput.classList.remove("wrong");
   textInput.value = "";
   textInput.focus();

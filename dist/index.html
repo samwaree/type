@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+
+    <!-- Bootstrap CSS -->
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+      integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z"
+      crossorigin="anonymous"
+    />
+    <link rel="stylesheet" href="../src/style.css" />
+    <title>TypingTester</title>
+  </head>
+  <body>
+    <div class="vertical-center">
+      <div class="container">
+        <div class="row">
+          <div class="col-12">
+            <div
+              class="btn-group btn-group-toggle"
+              style="width: 100%"
+              data-toggle="buttons"
+            >
+              <label class="btn btn-secondary">
+                <input
+                  type="radio"
+                  name="options"
+                  id="10"
+                  autocomplete="off"
+                  onclick="TypingTester.setWordCount(10);"
+                />
+                10
+              </label>
+              <label class="btn btn-secondary">
+                <input
+                  type="radio"
+                  name="options"
+                  id="25"
+                  autocomplete="off"
+                  onclick="TypingTester.setWordCount(25);"
+                />
+                25
+              </label>
+              <label class="btn btn-secondary">
+                <input
+                  type="radio"
+                  name="options"
+                  id="50"
+                  autocomplete="off"
+                  onclick="TypingTester.setWordCount(50);"
+                />
+                50
+              </label>
+            </div>
+          </div>
+        </div>
+        <div class="row top-padding">
+          <div class="col">
+            <div class="jumbotron">
+              <div id="words"></div>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col">
+            <div class="input-group mb-3">
+              <input id="text-input" type="text" class="form-control" />
+              <div class="input-group-append">
+                <button class="btn btn-outline-secondary" type="button" onclick="TypingTester.loadWords()">
+                  Redo
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="row top-padding">
+          <div class="col">
+            <h6 id="wpm">WPM: XX -- ACCURACY: XX</h2>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script src="bundle.js"></script>
+  </body>
+</html>
