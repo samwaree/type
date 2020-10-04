@@ -2,6 +2,7 @@
 
 # compiled output
 /dist/bundle.js
+/dist/*.ico
 /tmp
 /out-tsc
 

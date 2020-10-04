@@ -1,4 +1,5 @@
 import "./style.css";
+import "./assets/favicon.ico";
 var randomWords = require("random-words");
 var Cookies = require("js-cookie");
 
@@ -10,7 +11,7 @@ let wordCount = 25;
 let errorCount = 0;
 let wordList;
 let currentWordPosition = 0;
-let startTime = null;
+let startTime;
 
 loadCookies();
 
@@ -42,7 +43,6 @@ textInput.addEventListener("input", (e) => {
   } else {
     if (currentWordPosition == 0) {
       startTime = startTime || new Date().getTime();
-      console.log("Timer started...", startTime);
     } else if (currentWordPosition < wordCount) {
       if (getCurrentWord().startsWith(textInput.value)) {
         textInput.classList.remove("wrong");
@@ -76,15 +76,10 @@ function nextWord() {
 
 function endTimer() {
   var endTime = new Date().getTime();
-  console.log("Timer stopped...");
   var difference = endTime - startTime;
-
-  var seconds = (difference % (1000 * 60)) / 1000;
-  console.log(seconds);
+  var minutes = difference / 60000;
   var totalCharacters = wordList.join(" ").length;
-  console.log(totalCharacters);
-  var adjustedWordsPerMinute =
-    (totalCharacters / 5 - errorCount / 5) / (seconds / 60);
+  var adjustedWordsPerMinute = (totalCharacters / 5 - errorCount / 5) / minutes;
   adjustedWordsPerMinute =
     adjustedWordsPerMinute < 0 ? 0 : adjustedWordsPerMinute;
   document.querySelector("#wpm").innerHTML = `WPM: ${Math.floor(
