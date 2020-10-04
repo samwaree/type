@@ -31,6 +31,26 @@ body {
   outline: 5px solid red;
 }
 
+.current-word {
+  color: blue;
+}
+
+.incorrect {
+  color: red;
+}
+
+.correct {
+  color: green;
+}
+
+.wrong:focus {
+  background-color: #ffb3b3;
+}
+
+.wrong {
+  background-color: #ffb3b3;
+}
+
 @media (min-width: 768px) {
   .container {
     width: 600px;
