@@ -1,5 +1,6 @@
 import "./style.css";
 import "./assets/favicon.ico";
+import { startTimer, endTimer, isTimerRunning } from "./js/timer.js";
 var randomWords = require("random-words");
 var Cookies = require("js-cookie");
 
@@ -27,7 +28,7 @@ textInput.addEventListener("input", (e) => {
     }
   } else {
     if (currentWordPosition == 0) {
-      startTime = startTime || new Date().getTime();
+      startTimer();
     } else if (currentWordPosition < wordCount) {
       if (getCurrentWord().startsWith(textInput.value)) {
         textInput.classList.remove("wrong");
@@ -93,7 +94,7 @@ function setBestWPM(wpm) {
  * Doesn't do anything if the timer hasn't started (if startTime is null)
  */
 function nextWord() {
-  if (!startTime) {
+  if (!isTimerRunning()) {
     return;
   }
   if (getCurrentWord() === textInput.value) {
@@ -106,23 +107,18 @@ function nextWord() {
     highlightIncorrect(currentWordPosition++);
   }
   if (currentWordPosition == wordCount) {
-    endTimer();
+    var minutesTaken = endTimer();
+    calculateAndSetWPM(minutesTaken);
   } else {
     hightlightCurrentWord(currentWordPosition);
   }
   textInput.classList.remove("wrong");
 }
 
-/**
- * Calculates the adjusted WPM, updates the best WPM and resets startTime.
- * To calculate adjusted WPM, we take (totalCharacters / 5 - errorCount / 5) / minutes
- */
-function endTimer() {
-  var endTime = new Date().getTime();
-  var difference = endTime - startTime;
-  var minutes = difference / 60000;
+function calculateAndSetWPM(minutesTaken) {
   var totalCharacters = wordList.join(" ").length;
-  var adjustedWordsPerMinute = (totalCharacters / 5 - errorCount / 5) / minutes;
+  var adjustedWordsPerMinute =
+    (totalCharacters / 5 - errorCount / 5) / minutesTaken;
   adjustedWordsPerMinute =
     adjustedWordsPerMinute < 0 ? 0 : adjustedWordsPerMinute;
   document.querySelector("#wpm").innerHTML = `WPM: ${Math.floor(
