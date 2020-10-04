@@ -14,24 +14,9 @@ let currentWordPosition = 0;
 let startTime;
 
 loadCookies();
+loadWords();
 
-function loadCookies() {
-  var wpmCookie = Cookies.get("wpm") ? Cookies.get("wpm") : "XX";
-  highestWPM.innerHTML = `BEST: ${wpmCookie}`;
-}
-
-function setCookies(wpm) {
-  if (wpm > Cookies.get("wpm") || Cookies.get("wpm") == undefined) {
-    Cookies.set("wpm", wpm);
-    highestWPM.innerHTML = `BEST: ${wpm}`;
-  }
-}
-
-export function setWordCount(number) {
-  wordCount = number;
-  loadWords();
-}
-
+// Handles the text input bar
 textInput.addEventListener("input", (e) => {
   if (e.data === " ") {
     e.preventDefault();
@@ -53,6 +38,60 @@ textInput.addEventListener("input", (e) => {
   }
 });
 
+/**
+ * Loads random words into the word display and resets all tracking variables.
+ */
+export function loadWords() {
+  removeAllChildNodes(wordDisplay);
+
+  wordList = randomWords(wordCount);
+  wordList.forEach((word) => {
+    var span = document.createElement("span");
+    span.innerHTML = word + " ";
+    wordDisplay.appendChild(span);
+  });
+
+  // Reset tracking variables, highlighting and text box
+  hightlightCurrentWord(0);
+  currentWordPosition = 0;
+  errorCount = 0;
+  textInput.classList.remove("wrong");
+  textInput.value = "";
+  textInput.focus();
+}
+
+/**
+ * Sets the word count to use for the typing test and reloads word list.
+ * @param {number} number The word count chosen
+ */
+export function setWordCount(number) {
+  wordCount = number;
+  loadWords();
+}
+
+/**
+ * Loads cookies for page. Currently loads: best wpm.
+ */
+function loadCookies() {
+  var wpmCookie = Cookies.get("wpm") ? Cookies.get("wpm") : "XX";
+  highestWPM.innerHTML = `BEST: ${wpmCookie}`;
+}
+
+/**
+ * Sets the best WPM if its better than the previous best and saves to cookies.
+ * @param {number} wpm The wpm to check/set as best
+ */
+function setBestWPM(wpm) {
+  if (wpm > Cookies.get("wpm") || Cookies.get("wpm") == undefined) {
+    Cookies.set("wpm", wpm);
+    highestWPM.innerHTML = `BEST: ${wpm}`;
+  }
+}
+
+/**
+ * Checks whether the user typed the correct word and moves on to the next word.
+ * Doesn't do anything if the timer hasn't started (if startTime is null)
+ */
 function nextWord() {
   if (!startTime) {
     return;
@@ -69,11 +108,15 @@ function nextWord() {
   if (currentWordPosition == wordCount) {
     endTimer();
   } else {
-    highlightWord(currentWordPosition);
+    hightlightCurrentWord(currentWordPosition);
   }
   textInput.classList.remove("wrong");
 }
 
+/**
+ * Calculates the adjusted WPM, updates the best WPM and resets startTime.
+ * To calculate adjusted WPM, we take (totalCharacters / 5 - errorCount / 5) / minutes
+ */
 function endTimer() {
   var endTime = new Date().getTime();
   var difference = endTime - startTime;
@@ -87,23 +130,34 @@ function endTimer() {
   )} -- ACCURACY: ${Math.floor(
     ((totalCharacters - errorCount) / totalCharacters) * 100
   )}`;
-  setCookies(Math.floor(adjustedWordsPerMinute));
+  setBestWPM(Math.floor(adjustedWordsPerMinute));
   startTime = null;
 }
 
+/**
+ * Gets the current word based on currentWordPosition
+ */
 function getCurrentWord() {
   var wordList = wordDisplay.children;
   var currentWordSpan = wordList[currentWordPosition];
   return currentWordSpan.textContent.trim();
 }
 
-function highlightWord(position) {
+/**
+ * Hightlights the word at index position as the current word
+ * @param {number} position The position/index of the word to highlight as the current word
+ */
+function hightlightCurrentWord(position) {
   var childNodes = wordDisplay.children;
   var word = childNodes[position];
   word.classList = [];
   word.classList.add("current-word");
 }
 
+/**
+ * Hightlights the word at index position as correct
+ * @param {number} position The position/index of the word to highlight as correct
+ */
 function highlightCorrect(position) {
   console.log("Correct!");
   var childNodes = wordDisplay.children;
@@ -111,6 +165,10 @@ function highlightCorrect(position) {
   word.classList.add("correct");
 }
 
+/**
+ * Hightlights the word at index position as incorrect
+ * @param {number} position The position/index of the word to highlight as incorrect
+ */
 function highlightIncorrect(position) {
   console.log("Incorrect!");
   var childNodes = wordDisplay.children;
@@ -118,27 +176,12 @@ function highlightIncorrect(position) {
   word.classList.add("incorrect");
 }
 
-export function loadWords() {
-  removeAllChildNodes(wordDisplay);
-  wordList = randomWords(wordCount);
-  var div = document.createElement("div");
-  wordList.forEach((word) => {
-    var span = document.createElement("span");
-    span.innerHTML = word + " ";
-    wordDisplay.appendChild(span);
-  });
-  highlightWord(0);
-  currentWordPosition = 0;
-  errorCount = 0;
-  textInput.classList.remove("wrong");
-  textInput.value = "";
-  textInput.focus();
-}
-
+/**
+ * Removes all childeren from given node
+ * @param {Node} parent Node to remove all children from
+ */
 function removeAllChildNodes(parent) {
   while (parent.firstChild) {
     parent.removeChild(parent.firstChild);
   }
 }
-
-loadWords();
