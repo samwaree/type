@@ -26,6 +26,7 @@ textInput.addEventListener("input", (e) => {
   } else {
     if (currentWordPosition == 0) {
       startTime = startTime || new Date().getTime();
+      console.log("Timer started...", startTime);
     } else if (currentWordPosition < wordCount) {
       if (getCurrentWord().startsWith(textInput.value)) {
         textInput.classList.remove("wrong");
@@ -37,10 +38,16 @@ textInput.addEventListener("input", (e) => {
 });
 
 function nextWord() {
+  if (!startTime) {
+    return;
+  }
   if (getCurrentWord() === textInput.value) {
     highlightCorrect(currentWordPosition++);
   } else {
-    errorCount++;
+    errorCount += getCurrentWord().length;
+    if (currentWordPosition + 1 < wordCount) {
+      errorCount++;
+    }
     highlightIncorrect(currentWordPosition++);
   }
   if (currentWordPosition == wordCount) {
@@ -53,18 +60,22 @@ function nextWord() {
 
 function endTimer() {
   var endTime = new Date().getTime();
+  console.log("Timer stopped...");
   var difference = endTime - startTime;
 
   var seconds = (difference % (1000 * 60)) / 1000;
   console.log(seconds);
-  var totalCharacters = wordList.join("").length;
+  var totalCharacters = wordList.join(" ").length;
+  console.log(totalCharacters);
   var adjustedWordsPerMinute =
     (totalCharacters / 5 - errorCount) / (seconds / 60);
   adjustedWordsPerMinute =
     adjustedWordsPerMinute < 0 ? 0 : adjustedWordsPerMinute;
   document.querySelector("#wpm").innerHTML = `WPM: ${Math.floor(
     adjustedWordsPerMinute
-  )} -- ACCURACY: ${Math.floor(((wordCount - errorCount) / wordCount) * 100)}`;
+  )} -- ACCURACY: ${Math.floor(
+    ((totalCharacters - errorCount) / totalCharacters) * 100
+  )}`;
   startTime = null;
 }
 
