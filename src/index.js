@@ -1,9 +1,8 @@
 import "./style.css";
 import "./assets/favicon.ico";
 import { startTimer, endTimer, isTimerRunning } from "./js/timer.js";
-var randomWords = require("random-words");
-var Cookies = require("js-cookie");
-
+const randomWords = require("random-words");
+const Cookies = require("js-cookie");
 const wordDisplay = document.querySelector("#words");
 const textInput = document.querySelector("#text-input");
 const highestWPM = document.querySelector("#highest-wpm");
@@ -12,10 +11,14 @@ let wordCount = 25;
 let errorCount = 0;
 let wordList;
 let currentWordPosition = 0;
-let startTime;
 
 loadCookies();
 loadWords();
+
+// Handles setting the word count when buttons are clicked
+$("#word-count-select").click((e) => {
+  setWordCount(Number(e.target.innerText));
+});
 
 // Handles the text input bar
 textInput.addEventListener("input", (e) => {
@@ -91,7 +94,7 @@ function setBestWPM(wpm) {
 
 /**
  * Checks whether the user typed the correct word and moves on to the next word.
- * Doesn't do anything if the timer hasn't started (if startTime is null)
+ * Doesn't do anything if the timer hasn't started
  */
 function nextWord() {
   if (!isTimerRunning()) {
@@ -127,7 +130,6 @@ function calculateAndSetWPM(minutesTaken) {
     ((totalCharacters - errorCount) / totalCharacters) * 100
   )}`;
   setBestWPM(Math.floor(adjustedWordsPerMinute));
-  startTime = null;
 }
 
 /**
