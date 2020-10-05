@@ -3,9 +3,10 @@ import "./assets/favicon.ico";
 import { startTimer, endTimer, isTimerRunning } from "./js/timer.js";
 const randomWords = require("random-words");
 const Cookies = require("js-cookie");
-const wordDisplay = document.querySelector("#words");
-const textInput = document.querySelector("#text-input");
-const highestWPM = document.querySelector("#highest-wpm");
+const wordDisplay = document.getElementById("words");
+const textInput = document.getElementById("text-input");
+const highestWPM = document.getElementById("highest-wpm");
+const wordCountButtons = document.getElementById("word-count-select");
 
 let wordCount = 25;
 let errorCount = 0;
@@ -15,8 +16,7 @@ let currentWordPosition = 0;
 loadCookies();
 loadWords();
 
-// Handles setting the word count when buttons are clicked
-$("#word-count-select").click((e) => {
+wordCountButtons.addEventListener("click", (e) => {
   setWordCount(Number(e.target.innerText));
 });
 
@@ -124,7 +124,7 @@ function calculateAndSetWPM(minutesTaken) {
     (totalCharacters / 5 - errorCount / 5) / minutesTaken;
   adjustedWordsPerMinute =
     adjustedWordsPerMinute < 0 ? 0 : adjustedWordsPerMinute;
-  document.querySelector("#wpm").innerHTML = `WPM: ${Math.floor(
+  document.getElementById("wpm").innerHTML = `WPM: ${Math.floor(
     adjustedWordsPerMinute
   )} -- ACCURACY: ${Math.floor(
     ((totalCharacters - errorCount) / totalCharacters) * 100
