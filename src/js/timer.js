@@ -13,6 +13,9 @@ export function startTimer() {
  */
 export function endTimer() {
   console.log("Ending timer...");
+  if (startTime == null) {
+    return;
+  }
   var endTime = new Date().getTime();
   var difference = endTime - startTime;
   startTime = null;

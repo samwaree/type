@@ -58,6 +58,7 @@ export function loadWords() {
 
   // Reset tracking variables, highlighting and text box
   hightlightCurrentWord(0);
+  endTimer();
   currentWordPosition = 0;
   errorCount = 0;
   textInput.classList.remove("wrong");
