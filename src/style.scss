@@ -1,3 +1,5 @@
+@import "node_modules/bootstrap/scss/bootstrap";
+
 html,
 body {
   height: 100%;
@@ -28,15 +30,15 @@ body {
 }
 
 .current-word {
-  color: blue;
+  color: $primary;
 }
 
 .incorrect {
-  color: red;
+  color: $danger;
 }
 
 .correct {
-  color: green;
+  color: $success;
 }
 
 .wrong:focus {

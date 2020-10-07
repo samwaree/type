@@ -1,4 +1,4 @@
-import "./style.css";
+import "./style.scss";
 import "./assets/favicon.ico";
 import { startTimer, endTimer, isTimerRunning } from "./js/timer.js";
 const randomWords = require("random-words");
@@ -32,7 +32,8 @@ textInput.addEventListener("input", (e) => {
   } else {
     if (currentWordPosition == 0) {
       startTimer();
-    } else if (currentWordPosition < wordCount) {
+    }
+    if (currentWordPosition < wordCount) {
       if (getCurrentWord().startsWith(textInput.value)) {
         textInput.classList.remove("wrong");
       } else {
