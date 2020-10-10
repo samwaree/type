@@ -15,6 +15,7 @@ module.exports = {
     new CopyPlugin({
       patterns: [
         { from: './src/themes', to: 'themes' },
+        { from: './src/style.css', to: '' }
       ],
     }),
     new HtmlWebpackPlugin({
