@@ -1,8 +1,9 @@
-import "./style.scss";
+import "./style.css";
 import "./assets/favicon.ico";
 import { startTimer, endTimer, isTimerRunning } from "./js/timer.js";
-const randomWords = require("random-words");
 const Cookies = require("js-cookie");
+const words = require('./words.json').words;
+
 const wordDisplay = document.getElementById("words");
 const textInput = document.getElementById("text-input");
 const highestWPM = document.getElementById("highest-wpm");
@@ -15,6 +16,14 @@ let currentWordPosition = 0;
 
 loadCookies();
 loadWords();
+
+$('#theme-switch').on('change.bootstrapSwitch', (e) => {
+  if (e.target.checked) {
+    document.getElementById('theme').href = "./themes/dark.css";
+  } else {
+    document.getElementById('theme').href = "./themes/light.css";
+  }
+})
 
 wordCountButtons.addEventListener("click", (e) => {
   setWordCount(Number(e.target.innerText));
@@ -49,7 +58,7 @@ textInput.addEventListener("input", (e) => {
 export function loadWords() {
   removeAllChildNodes(wordDisplay);
 
-  wordList = randomWords(wordCount);
+  wordList = getRandomWords(wordCount);
   wordList.forEach((word) => {
     var span = document.createElement("span");
     span.innerHTML = word + " ";
@@ -64,6 +73,14 @@ export function loadWords() {
   textInput.classList.remove("wrong");
   textInput.value = "";
   textInput.focus();
+}
+
+function getRandomWords(wordCount) {
+  let randomWords = [];
+  for (var i = 0; i < wordCount; i++) {
+    randomWords.push(words[Math.floor(Math.random() * words.length)])
+  }
+  return randomWords;
 }
 
 /**
@@ -148,7 +165,7 @@ function getCurrentWord() {
  * @param {number} position The position/index of the word to highlight as the current word
  */
 function hightlightCurrentWord(position) {
-  var childNodes = wordDisplay.children;
+  var childNodes = wordDisplay.childNodes;
   var word = childNodes[position];
   word.classList = [];
   word.classList.add("current-word");
@@ -159,7 +176,6 @@ function hightlightCurrentWord(position) {
  * @param {number} position The position/index of the word to highlight as correct
  */
 function highlightCorrect(position) {
-  console.log("Correct!");
   var childNodes = wordDisplay.children;
   var word = childNodes[position];
   word.classList.add("correct");
@@ -170,7 +186,6 @@ function highlightCorrect(position) {
  * @param {number} position The position/index of the word to highlight as incorrect
  */
 function highlightIncorrect(position) {
-  console.log("Incorrect!");
   var childNodes = wordDisplay.children;
   var word = childNodes[position];
   word.classList.add("incorrect");

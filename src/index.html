@@ -9,7 +9,6 @@
     />
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono&display=swap" rel="stylesheet">
     <!-- Bootstrap CSS -->
     <link
       rel="stylesheet"
@@ -17,13 +16,23 @@
       integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z"
       crossorigin="anonymous"
     />
-    <link rel="stylesheet" href="../src/style.scss" />
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@450&display=swap" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/c96977ac22.js" crossorigin="anonymous"></script>
+    <link id="theme" rel="stylesheet" href="./themes/light.css" />
     <title>TypingTester</title>
   </head>
   <body>
     <div class="vertical-center">
       <div class="container">
         <div class="row">
+          <div class="col-12">
+            <div class="custom-control custom-switch">
+              <input type="checkbox" class="custom-control-input" id="theme-switch">
+              <label class="custom-control-label" style="padding-left: 5px;" for="theme-switch"><i class="fas fa-moon"></i></label>
+            </div>
+          </div>
+        </div>
+        <div class="row top-padding">
           <div class="col-12">
             <div
               class="btn-group btn-group-toggle"
@@ -84,7 +93,7 @@
               <input id="text-input" type="text" class="form-control" />
               <div class="input-group-append">
                 <button class="btn btn-outline-secondary" type="button" onclick="TypingTester.loadWords()">
-                  Redo
+                  <i class="fas fa-redo"></i>
                 </button>
               </div>
             </div>

@@ -1,0 +1,39 @@
+body {
+  background-color: #212121;
+}
+
+.jumbotron {
+  background-color: #303030;
+}
+
+.btn-secondary {
+  background-color: #303030;
+}
+
+label,
+div,
+.btn {
+  color: white;
+}
+
+.current-word {
+  color: cyan;
+}
+
+.incorrect {
+  color: rgb(255, 67, 67);
+}
+
+.correct {
+  color: rgb(0, 177, 0);
+}
+
+.wrong:focus,
+.wrong {
+  background-color: #ff1b1b4b !important;
+}
+
+#text-input {
+  background-color: #303030;
+  color: white;
+}

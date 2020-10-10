@@ -1,9 +1,24 @@
-@import "node_modules/bootstrap/scss/bootstrap";
+@keyframes fadein {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
 
 html,
 body {
   height: 100%;
   width: 100%;
+  animation-name: fadein;
+  animation-duration: 0.3s;
+  font-family: "Fira Code", monospace;
+}
+
+#words,
+#text-input {
+  font-size: 18px;
 }
 
 .vertical-center {
@@ -29,26 +44,6 @@ body {
   padding-bottom: 10px;
 }
 
-.current-word {
-  color: $primary;
-}
-
-.incorrect {
-  color: $danger;
-}
-
-.correct {
-  color: $success;
-}
-
-.wrong:focus {
-  background-color: #ffb3b3;
-}
-
-.wrong {
-  background-color: #ffb3b3;
-}
-
 @media (min-width: 768px) {
   .container {
     width: 600px;
@@ -63,6 +58,15 @@ body {
 
 @media (min-width: 1200px) {
   .container {
-    width: 35%;
+    width: 38%;
   }
+}
+
+.custom-control-input:checked ~ .custom-control-label::before {
+  color: #fff;
+  background-color: #303030;
+  outline: 0;
+  border-color: #6b747c;
+  -webkit-box-shadow: none;
+  box-shadow: none;
 }

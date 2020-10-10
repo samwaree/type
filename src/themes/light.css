@@ -1,0 +1,42 @@
+body {
+  background-color: white;
+}
+
+.jumbotron {
+  background-color: #e9ecef;
+}
+
+.btn-secondary {
+  background-color: #6b747c;
+}
+
+.current-word {
+  color: blue;
+}
+
+.incorrect {
+  color: red;
+}
+
+.correct {
+  color: green;
+}
+
+i {
+  color: black;
+}
+.wrong:focus {
+  background-color: #ffb3b3;
+}
+
+.wrong {
+  background-color: #ffb3b3;
+}
+
+.wrong:focus {
+  background-color: #ffb3b3;
+}
+
+.wrong {
+  background-color: #ffb3b3;
+}
