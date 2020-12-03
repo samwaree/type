@@ -20,8 +20,10 @@ loadWords();
 $('#theme-switch').on('change.bootstrapSwitch', (e) => {
   if (e.target.checked) {
     document.getElementById('theme').href = "./themes/dark.css";
+    Cookies.set("theme", "dark", { expires: 7 });
   } else {
     document.getElementById('theme').href = "./themes/light.css";
+    Cookies.set("theme", "light", { expires: 7 });
   }
 })
 
@@ -98,6 +100,12 @@ export function setWordCount(number) {
 function loadCookies() {
   var wpmCookie = Cookies.get("wpm") ? Cookies.get("wpm") : "XX";
   highestWPM.innerHTML = `BEST: ${wpmCookie}`;
+  if (Cookies.get("theme") == "dark") {
+    $('#theme-switch').attr('checked', '');
+    document.getElementById('theme').href = "./themes/dark.css";
+  } else {
+    document.getElementById('theme').href = "./themes/light.css";
+  }
 }
 
 /**
@@ -106,7 +114,7 @@ function loadCookies() {
  */
 function setBestWPM(wpm) {
   if (wpm > Cookies.get("wpm") || Cookies.get("wpm") == undefined) {
-    Cookies.set("wpm", wpm);
+    Cookies.set("wpm", wpm, { expires: 7 });
     highestWPM.innerHTML = `BEST: ${wpm}`;
   }
 }
