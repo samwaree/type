@@ -5,7 +5,7 @@ const CopyPlugin = require('copy-webpack-plugin');
 module.exports = {
   entry: "./src/index.js",
   output: {
-    library: "TypingTester",
+    library: "type",
     libraryTarget: "window",
     filename: "bundle.js",
     path: path.resolve(__dirname, "dist"),
@@ -19,7 +19,7 @@ module.exports = {
       ],
     }),
     new HtmlWebpackPlugin({
-      title: "Type",
+      title: "type",
       favicon: "./src/assets/favicon.ico",
       template: "./src/index.html",
     }),

@@ -32,6 +32,15 @@ body {
   margin-top: 20px;
 }
 
+.no-padding {
+  margin-bottom: -15px;
+}
+
+.red-outline {
+  border-style: solid;
+  border-color: red;
+}
+
 .text-input {
   margin-left: -15px;
   margin-right: -15px;
@@ -42,6 +51,11 @@ body {
   padding-left: 15px;
   padding-right: 15px;
   padding-bottom: 10px;
+}
+
+.title {
+  float: right;
+  font-weight: bold;
 }
 
 @media (min-width: 768px) {
