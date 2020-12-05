@@ -1,117 +1,115 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <!-- Required meta tags -->
-    <meta charset="utf-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1, shrink-to-fit=no"
-    />
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-    <!-- Bootstrap CSS -->
-    <link
-      rel="stylesheet"
-      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
-      integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z"
-      crossorigin="anonymous"
-    />
-    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@450&display=swap" rel="stylesheet">
-    <script src="https://kit.fontawesome.com/c96977ac22.js" crossorigin="anonymous"></script>
-    <link id="theme" rel="stylesheet" href="./themes/light.css" />
-    <link rel="stylesheet" href="./style.css" />
-    <title>type - Minimal typing test</title>
-  </head>
-  <body>
-    <div class="vertical-center">
-      <div class="container">
-        <div class="row no-padding">
-          <div class="col align-self-center">
-            <div class="custom-control custom-switch">
-              <input type="checkbox" class="custom-control-input" id="theme-switch">
-              <label class="custom-control-label" style="padding-left: 5px;" for="theme-switch"><i class="fas fa-moon"></i></label>
-            </div>
-          </div>
-          <div class="col">
-            <h2 class="title">type</h2>
-          </div>
-        </div>
-        <div class="row top-padding">
-          <div class="col-12">
-            <div
-              class="btn-group btn-group-toggle"
-              style="width: 100%"
-              data-toggle="buttons"
-              id="word-count-select"
-            >
-              <label class="btn btn-secondary">
-                <input
-                  type="radio"
-                  name="options"
-                  id="button10"
-                  autocomplete="off"
-                />
-                10
-              </label>
-              <label class="btn btn-secondary active" checked>
-                <input
-                  type="radio"
-                  name="options"
-                  id="button25"
-                  autocomplete="off"
-                  checked
-                />
-                25
-              </label>
-              <label class="btn btn-secondary">
-                <input
-                  type="radio"
-                  name="options"
-                  id="button50"
-                  autocomplete="off"
-                />
-                50
-              </label>
-              <label class="btn btn-secondary">
-                <input
-                  type="radio"
-                  name="options"
-                  id="button100"
-                  autocomplete="off"
-                />
-                100
-              </label>
-            </div>
+
+<head>
+  <!-- Required meta tags -->
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+    integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+    crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+    integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+    crossorigin="anonymous"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+    integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+    crossorigin="anonymous"></script>
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+    integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous" />
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@450&display=swap" rel="stylesheet">
+  <script src="https://kit.fontawesome.com/c96977ac22.js" crossorigin="anonymous"></script>
+  <link id="theme" rel="stylesheet" href="./themes/light.css" />
+  <link rel="stylesheet" href="./style.css" />
+  <title>type - Minimal typing test</title>
+</head>
+
+<body>
+  <div class="d-flex w-100 h-100 p-3 mx-auto flex-column">
+    <header class="masthead mb-auto">
+      <div class="container inner">
+        <nav class="nav nav-masthead justify-content-left">
+          <i id="login" class="fas fa-user fa-clickable" data-toggle="tooltip" data-placement="bottom"
+            title="Login"></i>
+        </nav>
+      </div>
+    </header>
+    <div class="container">
+      <div class="row no-padding">
+        <div class="col align-self-center">
+          <div class="custom-control custom-switch">
+            <input type="checkbox" class="custom-control-input" id="theme-switch">
+            <label class="custom-control-label" style="padding-left: 5px;" for="theme-switch"><i
+                class="fas fa-moon"></i></label>
           </div>
         </div>
-        <div class="row top-padding">
-          <div class="col">
-            <div class="jumbotron">
-              <div id="words"></div>
-            </div>
-          </div>
+        <div class="col">
+          <h2 class="title">type</h2>
         </div>
-        <div class="row">
-          <div class="col">
-            <div class="input-group mb-3">
-              <input id="text-input" type="text" class="form-control" />
-              <div class="input-group-append">
-                <button class="btn btn-outline-secondary" type="button" onclick="TypingTester.loadWords()">
-                  <i class="fas fa-redo"></i>
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="row top-padding">
-          <div class="col">
-            <h6 id="wpm">WPM: XX -- ACCURACY: XX</h2>
-          </div>
-          <div class="col">
-            <h6 align="right" id="highest-wpm"></h2>
+      </div>
+      <div class="row top-padding">
+        <div class="col-12">
+          <div class="btn-group btn-group-toggle" style="width: 100%" data-toggle="buttons" id="word-count-select">
+            <label class="btn btn-secondary">
+              <input type="radio" name="options" id="button10" autocomplete="off" />
+              10
+            </label>
+            <label class="btn btn-secondary active" checked>
+              <input type="radio" name="options" id="button25" autocomplete="off" checked />
+              25
+            </label>
+            <label class="btn btn-secondary">
+              <input type="radio" name="options" id="button50" autocomplete="off" />
+              50
+            </label>
+            <label class="btn btn-secondary">
+              <input type="radio" name="options" id="button100" autocomplete="off" />
+              100
+            </label>
           </div>
         </div>
       </div>
+      <div class="row top-padding">
+        <div class="col">
+          <div class="jumbotron">
+            <div id="words"></div>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col">
+          <div class="input-group mb-3">
+            <input id="text-input" type="text" class="form-control" />
+            <div data-toggle="tooltip" data-placement="bottom" title="Redo" class="input-group-append">
+              <button class="btn btn-outline-secondary" type="button" onclick="TypingTester.loadWords()">
+                <i class="fas fa-redo"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="row top-padding">
+        <div class="col">
+          <h6 id="wpm">WPM: XX -- ACCURACY: XX</h2>
+        </div>
+        <div class="col">
+          <h6 align="right" id="highest-wpm">
+            </h2>
+        </div>
+      </div>
     </div>
-  </body>
+    <footer class="mx-auto mt-auto">
+      <div class="inner">
+        <a href="https://github.com/samwaree/typingtester" target="_blank">
+          <i class="fas fa-code fa-clickable" data-toggle="tooltip" data-placement="bottom" title="GitHub"></i>
+        </a>
+        <span>|</span>
+        <a href="https://samware.dev" target="_blank">
+          <i class="fas fa-id-card fa-clickable" data-toggle="tooltip" data-placement="bottom" title="My Website"></i>
+        </a>
+      </div>
+    </footer>
+  </div>
+</body>
+
 </html>

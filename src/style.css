@@ -13,7 +13,12 @@ body {
   width: 100%;
   animation-name: fadein;
   animation-duration: 0.3s;
-  font-family: "Fira Code", monospace;
+  font-family: 'Fira Code', monospace;
+}
+
+body {
+  display: -ms-flexbox;
+  display: flex;
 }
 
 #words,
@@ -22,9 +27,9 @@ body {
 }
 
 .vertical-center {
-  min-height: 100%;
-  min-height: 100vh;
+  height: 100%;
   display: flex;
+  justify-content: center;
   align-items: center;
 }
 
@@ -58,6 +63,11 @@ body {
   font-weight: bold;
 }
 
+.fa-clickable {
+  cursor: pointer;
+  outline: none;
+}
+
 @media (min-width: 768px) {
   .container {
     width: 600px;
@@ -72,7 +82,7 @@ body {
 
 @media (min-width: 1200px) {
   .container {
-    width: 38%;
+    width: 50%;
   }
 }
 
@@ -83,4 +93,32 @@ body {
   border-color: #6b747c;
   -webkit-box-shadow: none;
   box-shadow: none;
+}
+
+/*
+ * Header
+ */
+.masthead {
+  margin-bottom: 2rem;
+}
+
+.masthead-brand {
+  margin-bottom: 0;
+}
+
+.nav-masthead .nav-link {
+  padding: 0.25rem 0;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.5);
+  background-color: transparent;
+  border-bottom: 0.25rem solid transparent;
+}
+
+.nav-masthead .nav-link:hover,
+.nav-masthead .nav-link:focus {
+  border-bottom-color: rgba(255, 255, 255, 0.25);
+}
+
+a {
+  color: inherit;
 }

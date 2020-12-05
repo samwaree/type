@@ -5,7 +5,7 @@ const CopyPlugin = require('copy-webpack-plugin');
 module.exports = {
   entry: "./src/index.js",
   output: {
-    library: "type",
+    library: "TypingTester",
     libraryTarget: "window",
     filename: "bundle.js",
     path: path.resolve(__dirname, "dist"),

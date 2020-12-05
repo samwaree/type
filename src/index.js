@@ -1,13 +1,13 @@
-import "./style.css";
-import "./assets/favicon.ico";
-import { startTimer, endTimer, isTimerRunning } from "./js/timer.js";
-const Cookies = require("js-cookie");
+require('./style.css');
+require('./assets/favicon.ico');
+const timer = require('./js/timer.js');
+const Cookies = require('js-cookie');
 const words = require('./words.json').words;
 
-const wordDisplay = document.getElementById("words");
-const textInput = document.getElementById("text-input");
-const highestWPM = document.getElementById("highest-wpm");
-const wordCountButtons = document.getElementById("word-count-select");
+const wordDisplay = document.getElementById('words');
+const textInput = document.getElementById('text-input');
+const highestWPM = document.getElementById('highest-wpm');
+const wordCountButtons = document.getElementById('word-count-select');
 
 let wordCount = 25;
 let errorCount = 0;
@@ -17,38 +17,42 @@ let currentWordPosition = 0;
 loadCookies();
 loadWords();
 
+$(function () {
+  $('[data-toggle="tooltip"]').tooltip({ placement: 'bottom' });
+});
+
 $('#theme-switch').on('change.bootstrapSwitch', (e) => {
   if (e.target.checked) {
-    document.getElementById('theme').href = "./themes/dark.css";
-    Cookies.set("theme", "dark", { expires: 7 });
+    document.getElementById('theme').href = './themes/dark.css';
+    Cookies.set('theme', 'dark', { expires: 7 });
   } else {
-    document.getElementById('theme').href = "./themes/light.css";
-    Cookies.set("theme", "light", { expires: 7 });
+    document.getElementById('theme').href = './themes/light.css';
+    Cookies.set('theme', 'light', { expires: 7 });
   }
-})
+});
 
-wordCountButtons.addEventListener("click", (e) => {
+wordCountButtons.addEventListener('click', (e) => {
   setWordCount(Number(e.target.innerText));
 });
 
 // Handles the text input bar
-textInput.addEventListener("input", (e) => {
-  if (e.data === " ") {
+textInput.addEventListener('input', (e) => {
+  if (e.data === ' ') {
     e.preventDefault();
     textInput.value = textInput.value.slice(0, -1);
-    if (textInput.value != "") {
+    if (textInput.value != '') {
       nextWord();
-      textInput.value = "";
+      textInput.value = '';
     }
   } else {
     if (currentWordPosition == 0) {
-      startTimer();
+      timer.startTimer();
     }
     if (currentWordPosition < wordCount) {
       if (getCurrentWord().startsWith(textInput.value)) {
-        textInput.classList.remove("wrong");
+        textInput.classList.remove('wrong');
       } else {
-        textInput.classList.add("wrong");
+        textInput.classList.add('wrong');
       }
     }
   }
@@ -57,30 +61,35 @@ textInput.addEventListener("input", (e) => {
 /**
  * Loads random words into the word display and resets all tracking variables.
  */
-export function loadWords() {
+function loadWords() {
   removeAllChildNodes(wordDisplay);
 
   wordList = getRandomWords(wordCount);
   wordList.forEach((word) => {
-    var span = document.createElement("span");
-    span.innerHTML = word + " ";
+    const span = document.createElement('span');
+    span.innerHTML = word + ' ';
     wordDisplay.appendChild(span);
   });
 
   // Reset tracking variables, highlighting and text box
   hightlightCurrentWord(0);
-  endTimer();
+  timer.endTimer();
   currentWordPosition = 0;
   errorCount = 0;
-  textInput.classList.remove("wrong");
-  textInput.value = "";
+  textInput.classList.remove('wrong');
+  textInput.value = '';
   textInput.focus();
 }
 
+/**
+ * Returns an array of randoms words of size wordCount.
+ * @param {number} wordCount Number of words to get
+ * @return {number} The array of random words
+ */
 function getRandomWords(wordCount) {
-  let randomWords = [];
-  for (var i = 0; i < wordCount; i++) {
-    randomWords.push(words[Math.floor(Math.random() * words.length)])
+  const randomWords = [];
+  for (let i = 0; i < wordCount; i++) {
+    randomWords.push(words[Math.floor(Math.random() * words.length)]);
   }
   return randomWords;
 }
@@ -89,7 +98,7 @@ function getRandomWords(wordCount) {
  * Sets the word count to use for the typing test and reloads word list.
  * @param {number} number The word count chosen
  */
-export function setWordCount(number) {
+function setWordCount(number) {
   wordCount = number;
   loadWords();
 }
@@ -98,13 +107,13 @@ export function setWordCount(number) {
  * Loads cookies for page. Currently loads: best wpm.
  */
 function loadCookies() {
-  var wpmCookie = Cookies.get("wpm") ? Cookies.get("wpm") : "XX";
+  const wpmCookie = Cookies.get('wpm') ? Cookies.get('wpm') : 'XX';
   highestWPM.innerHTML = `BEST: ${wpmCookie}`;
-  if (Cookies.get("theme") == "dark") {
+  if (Cookies.get('theme') == 'dark') {
     $('#theme-switch').attr('checked', '');
-    document.getElementById('theme').href = "./themes/dark.css";
+    document.getElementById('theme').href = './themes/dark.css';
   } else {
-    document.getElementById('theme').href = "./themes/light.css";
+    document.getElementById('theme').href = './themes/light.css';
   }
 }
 
@@ -113,8 +122,8 @@ function loadCookies() {
  * @param {number} wpm The wpm to check/set as best
  */
 function setBestWPM(wpm) {
-  if (wpm > Cookies.get("wpm") || Cookies.get("wpm") == undefined) {
-    Cookies.set("wpm", wpm, { expires: 7 });
+  if (wpm > Cookies.get('wpm') || Cookies.get('wpm') == undefined) {
+    Cookies.set('wpm', wpm, { expires: 7 });
     highestWPM.innerHTML = `BEST: ${wpm}`;
   }
 }
@@ -124,7 +133,7 @@ function setBestWPM(wpm) {
  * Doesn't do anything if the timer hasn't started
  */
 function nextWord() {
-  if (!isTimerRunning()) {
+  if (!timer.isTimerRunning()) {
     return;
   }
   if (getCurrentWord() === textInput.value) {
@@ -137,21 +146,25 @@ function nextWord() {
     highlightIncorrect(currentWordPosition++);
   }
   if (currentWordPosition == wordCount) {
-    var minutesTaken = endTimer();
+    const minutesTaken = timer.endTimer();
     calculateAndSetWPM(minutesTaken);
   } else {
     hightlightCurrentWord(currentWordPosition);
   }
-  textInput.classList.remove("wrong");
+  textInput.classList.remove('wrong');
 }
 
+/**
+ * Calculates and sets the WPM.
+ * @param {number} minutesTaken Number of minutes taken
+ */
 function calculateAndSetWPM(minutesTaken) {
-  var totalCharacters = wordList.join(" ").length;
-  var adjustedWordsPerMinute =
+  const totalCharacters = wordList.join(' ').length;
+  let adjustedWordsPerMinute =
     (totalCharacters / 5 - errorCount / 5) / minutesTaken;
   adjustedWordsPerMinute =
     adjustedWordsPerMinute < 0 ? 0 : adjustedWordsPerMinute;
-  document.getElementById("wpm").innerHTML = `WPM: ${Math.floor(
+  document.getElementById('wpm').innerHTML = `WPM: ${Math.floor(
     adjustedWordsPerMinute
   )} -- ACCURACY: ${Math.floor(
     ((totalCharacters - errorCount) / totalCharacters) * 100
@@ -161,42 +174,46 @@ function calculateAndSetWPM(minutesTaken) {
 
 /**
  * Gets the current word based on currentWordPosition
+ * @return {string} The current word
  */
 function getCurrentWord() {
-  var wordList = wordDisplay.children;
-  var currentWordSpan = wordList[currentWordPosition];
+  const wordList = wordDisplay.children;
+  const currentWordSpan = wordList[currentWordPosition];
   return currentWordSpan.textContent.trim();
 }
 
 /**
  * Hightlights the word at index position as the current word
- * @param {number} position The position/index of the word to highlight as the current word
+ * @param {number} position The position/index of the word to highlight
+ * as the current word
  */
 function hightlightCurrentWord(position) {
-  var childNodes = wordDisplay.childNodes;
-  var word = childNodes[position];
+  const childNodes = wordDisplay.childNodes;
+  const word = childNodes[position];
   word.classList = [];
-  word.classList.add("current-word");
+  word.classList.add('current-word');
 }
 
 /**
  * Hightlights the word at index position as correct
- * @param {number} position The position/index of the word to highlight as correct
+ * @param {number} position The position/index of the word to highlight
+ *  as correct
  */
 function highlightCorrect(position) {
-  var childNodes = wordDisplay.children;
-  var word = childNodes[position];
-  word.classList.add("correct");
+  const childNodes = wordDisplay.children;
+  const word = childNodes[position];
+  word.classList.add('correct');
 }
 
 /**
  * Hightlights the word at index position as incorrect
- * @param {number} position The position/index of the word to highlight as incorrect
+ * @param {number} position The position/index of the word to highlight
+ * as incorrect
  */
 function highlightIncorrect(position) {
-  var childNodes = wordDisplay.children;
-  var word = childNodes[position];
-  word.classList.add("incorrect");
+  const childNodes = wordDisplay.children;
+  const word = childNodes[position];
+  word.classList.add('incorrect');
 }
 
 /**
@@ -208,3 +225,5 @@ function removeAllChildNodes(parent) {
     parent.removeChild(parent.firstChild);
   }
 }
+
+module.exports = { loadWords, setWordCount };
