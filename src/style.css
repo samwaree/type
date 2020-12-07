@@ -61,6 +61,7 @@ body {
 .title {
   float: right;
   font-weight: bold;
+  padding-right: 25px;
 }
 
 .fa-clickable {
@@ -68,20 +69,24 @@ body {
   outline: none;
 }
 
+#login {
+  transform: translateY(-10%);
+}
+
 @media (min-width: 768px) {
-  .container {
+  .main-container {
     width: 600px;
   }
 }
 
 @media (min-width: 992px) {
-  .container {
+  .main-container {
     width: 720px;
   }
 }
 
 @media (min-width: 1200px) {
-  .container {
+  .main-container {
     width: 50%;
   }
 }

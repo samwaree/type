@@ -1,4 +1,6 @@
-body {
+body,
+.modal-header,
+.modal-body {
   background-color: #212121;
 }
 
@@ -8,6 +10,18 @@ body {
 
 .btn-secondary {
   background-color: #303030;
+}
+
+.btn-success {
+  background-color: #009e76;
+}
+
+.btn-success:hover {
+  background-color: inherit;
+}
+
+.btn-success:active {
+  background-color: #009e76;
 }
 
 label,
@@ -33,6 +47,11 @@ div,
   background-color: #ff1b1b4b !important;
 }
 
+input {
+  background-color: #303030 !important;
+  color: white !important;
+}
+
 #text-input {
   background-color: #303030;
   color: white;
@@ -41,4 +60,4 @@ div,
 .form-control:focus {
   border-color: #494949;
   box-shadow: 0 0 0 0.2rem rgba(59, 59, 59, 0.25);
-} 
+}

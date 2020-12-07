@@ -3,6 +3,8 @@ require('./assets/favicon.ico');
 const timer = require('./js/timer.js');
 const Cookies = require('js-cookie');
 const words = require('./words.json').words;
+const user = require('./js/user.js');
+const init = require('./js/init.js');
 
 const wordDisplay = document.getElementById('words');
 const textInput = document.getElementById('text-input');
@@ -16,6 +18,11 @@ let currentWordPosition = 0;
 
 loadCookies();
 loadWords();
+init.initFirebase();
+
+$('#login').on('click', () => {
+  $('#exampleModalCenter').modal('toggle');
+});
 
 $(function () {
   $('[data-toggle="tooltip"]').tooltip({ placement: 'bottom' });
@@ -57,6 +64,57 @@ textInput.addEventListener('input', (e) => {
     }
   }
 });
+
+$('#signupForm').on('submit', (e) => {
+  e.preventDefault();
+  let userInfo = $('#signupForm').serializeArray();
+  let email = userInfo.find((form) => form.name === 'email').value;
+  let password = userInfo.find((form) => form.name === 'password').value;
+  let confirmPassword = userInfo.find(
+    (form) => form.name === 'confirm_password'
+  ).value;
+  let username = userInfo.find((form) => form.name === 'username').value;
+  validateUserInfo(email, password, confirmPassword, username, (error) => {
+    if (!error) {
+      user.signup(email, password, (error) => {
+        if (error) {
+          console.log(error);
+          return;
+        }
+        location.reload();
+      });
+    }
+  });
+});
+
+$('#loginForm').on('submit', (e) => {
+  e.preventDefault();
+  user.login($('#loginForm').serializeArray(), (error) => {
+    if (error) {
+      console.log(error);
+      return;
+    }
+    location.reload();
+  });
+});
+
+function validateUserInfo(
+  email,
+  password,
+  confirmPassword,
+  username,
+  callback
+) {
+  if (password !== confirmPassword) {
+    document
+      .getElementById('signin_confirm_password')
+      .setCustomValidity('Passwords must match');
+  } else if (false) {
+    //validate username
+  } else {
+    callback(null);
+  }
+}
 
 /**
  * Loads random words into the word display and resets all tracking variables.
