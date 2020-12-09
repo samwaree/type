@@ -3,11 +3,15 @@ require('./assets/favicon.ico');
 const timer = require('./js/timer.js');
 const Cookies = require('js-cookie');
 const words = require('./words.json').words;
+const userDB = require('./js/user.js');
 
 const wordDisplay = document.getElementById('words');
 const textInput = document.getElementById('text-input');
 const highestWPM = document.getElementById('highest-wpm');
 const wordCountButtons = document.getElementById('word-count-select');
+
+var authUser;
+var docUser;
 
 let wordCount = 25;
 let errorCount = 0;
@@ -16,6 +20,62 @@ let currentWordPosition = 0;
 
 loadCookies();
 loadWords();
+
+let isAuthReady = false;
+
+// Handles user logging in/out on page load
+firebase.auth().onAuthStateChanged(() => {
+  authUser = firebase.auth().currentUser;
+
+  if (!isAuthReady) {
+    isAuthReady = true;
+    userDB.getUser(authUser, (u, error) => {
+      if (error) {
+        console.log(error);
+      }
+      docUser = u;
+      loadNavBar();
+      $('.loader-wrapper').fadeOut('slow');
+    });
+  }
+});
+
+/**
+ * Loads the NavBar depending on if the user is logged in or not
+ */
+function loadNavBar() {
+  if (authUser) {
+    $('#login').hide();
+    $('#sign-out').show();
+    $('#username').show();
+    if (docUser) {
+      $('#username').text(docUser.username);
+    }
+  } else {
+    $('#login').show();
+    $('#sign-out').hide();
+  }
+}
+
+// Page startup
+$(() => {
+  $('#login-alert').hide();
+});
+
+// Opens the login/signup modal on click of login icon
+$('#login').on('click', () => {
+  $('#login-signup-modal').modal('toggle');
+});
+
+// Handles signing user out upon clicking sign out button
+$('#sign-out').on('click', () => {
+  userDB.signout((error) => {
+    if (error) {
+      alert('Error Signing out');
+    }
+    location.reload();
+  });
+});
 
 $(function () {
   $('[data-toggle="tooltip"]').tooltip({ placement: 'bottom' });
@@ -57,6 +117,59 @@ textInput.addEventListener('input', (e) => {
     }
   }
 });
+
+// Handles signup form submission
+$('#signupForm').on('submit', (e) => {
+  e.preventDefault();
+  let userInfo = $('#signupForm').serializeArray();
+  let email = userInfo.find((form) => form.name === 'email').value;
+  let password = userInfo.find((form) => form.name === 'password').value;
+  let confirmPassword = userInfo.find(
+    (form) => form.name === 'confirm_password'
+  ).value;
+  let username = userInfo.find((form) => form.name === 'username').value;
+  if (!validatePasswordsMatch(password, confirmPassword)) {
+    return;
+  }
+  userDB.signup(email, password, username, (error) => {
+    if (error) {
+      alert('Error creating account, please try again');
+      return;
+    }
+    location.reload();
+  });
+});
+
+// Handles login form submission
+$('#loginForm').on('submit', (e) => {
+  e.preventDefault();
+  let userInfo = $('#loginForm').serializeArray();
+  let email = userInfo.find((form) => form.name === 'email').value;
+  let password = userInfo.find((form) => form.name === 'password').value;
+  userDB.login(email, password, (error) => {
+    if (error) {
+      $('#login-alert').show();
+      return;
+    }
+    location.reload();
+  });
+});
+
+/**
+ * Returns whether or not the passord and confirm password match. Sets validity error if they do not.
+ *
+ * @param {string} password Password to check
+ * @param {string} confirmPassword confirmPassword to check
+ */
+function validatePasswordsMatch(password, confirmPassword) {
+  if (password !== confirmPassword) {
+    document
+      .getElementById('signin_confirm_password')
+      .setCustomValidity('Passwords must match');
+    return false;
+  }
+  return true;
+}
 
 /**
  * Loads random words into the word display and resets all tracking variables.
