@@ -1,18 +1,35 @@
-@keyframes fadein {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
+/* Media Queries */
+
+@media (max-width: 576px) {
+  #loginHeader {
+    padding-top: 40px;
   }
 }
+
+@media (min-width: 768px) {
+  .main-container {
+    width: 600px;
+  }
+}
+
+@media (min-width: 992px) {
+  .main-container {
+    width: 720px;
+  }
+}
+
+@media (min-width: 1200px) {
+  .main-container {
+    width: 50%;
+  }
+}
+
+/* Main Stylings */
 
 html,
 body {
   height: 100%;
   width: 100%;
-  animation-name: fadein;
-  animation-duration: 0.3s;
   font-family: 'Fira Code', monospace;
 }
 
@@ -24,13 +41,6 @@ body {
 #words,
 #text-input {
   font-size: 18px;
-}
-
-.vertical-center {
-  height: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
 }
 
 .top-padding {
@@ -59,7 +69,6 @@ body {
 }
 
 .title {
-  float: right;
   font-weight: bold;
   padding-right: 25px;
 }
@@ -69,28 +78,6 @@ body {
   outline: none;
 }
 
-#login {
-  transform: translateY(-10%);
-}
-
-@media (min-width: 768px) {
-  .main-container {
-    width: 600px;
-  }
-}
-
-@media (min-width: 992px) {
-  .main-container {
-    width: 720px;
-  }
-}
-
-@media (min-width: 1200px) {
-  .main-container {
-    width: 50%;
-  }
-}
-
 .custom-control-input:checked ~ .custom-control-label::before {
   color: #fff;
   background-color: #303030;
@@ -98,6 +85,18 @@ body {
   border-color: #6b747c;
   -webkit-box-shadow: none;
   box-shadow: none;
+}
+
+a {
+  color: inherit;
+}
+
+.alert {
+  display: inline-block;
+}
+
+#username {
+  padding-right: 20px;
 }
 
 /*
@@ -124,6 +123,78 @@ body {
   border-bottom-color: rgba(255, 255, 255, 0.25);
 }
 
-a {
-  color: inherit;
+/* Loading screen */
+
+.loader-wrapper {
+  width: 100%;
+  height: 100%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  background-color: #212121;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 5;
+}
+
+.loader {
+  display: inline-block;
+  width: 30px;
+  height: 30px;
+  position: relative;
+  border: 4px solid #fff;
+  animation: loader 2s infinite ease;
+}
+
+.loader-inner {
+  vertical-align: top;
+  display: inline-block;
+  width: 100%;
+  background-color: #fff;
+  animation: loader-inner 2s infinite ease-in;
+}
+
+@keyframes loader {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  25% {
+    transform: rotate(180deg);
+  }
+
+  50% {
+    transform: rotate(180deg);
+  }
+
+  75% {
+    transform: rotate(360deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes loader-inner {
+  0% {
+    height: 0%;
+  }
+
+  25% {
+    height: 0%;
+  }
+
+  50% {
+    height: 100%;
+  }
+
+  75% {
+    height: 100%;
+  }
+
+  100% {
+    height: 0%;
+  }
 }

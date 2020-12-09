@@ -93,3 +93,4 @@ Thumbs.db
 #Firebase
 .firebase
 .firebaserc
+init.dev.js

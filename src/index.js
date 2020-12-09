@@ -3,13 +3,15 @@ require('./assets/favicon.ico');
 const timer = require('./js/timer.js');
 const Cookies = require('js-cookie');
 const words = require('./words.json').words;
-const user = require('./js/user.js');
-const init = require('./js/init.js');
+const userDB = require('./js/user.js');
 
 const wordDisplay = document.getElementById('words');
 const textInput = document.getElementById('text-input');
 const highestWPM = document.getElementById('highest-wpm');
 const wordCountButtons = document.getElementById('word-count-select');
+
+var authUser;
+var docUser;
 
 let wordCount = 25;
 let errorCount = 0;
@@ -18,10 +20,61 @@ let currentWordPosition = 0;
 
 loadCookies();
 loadWords();
-init.initFirebase();
 
+let isAuthReady = false;
+
+// Handles user logging in/out on page load
+firebase.auth().onAuthStateChanged(() => {
+  authUser = firebase.auth().currentUser;
+
+  if (!isAuthReady) {
+    isAuthReady = true;
+    userDB.getUser(authUser, (u, error) => {
+      if (error) {
+        console.log(error);
+      }
+      docUser = u;
+      loadNavBar();
+      $('.loader-wrapper').fadeOut('slow');
+    });
+  }
+});
+
+/**
+ * Loads the NavBar depending on if the user is logged in or not
+ */
+function loadNavBar() {
+  if (authUser) {
+    $('#login').hide();
+    $('#sign-out').show();
+    $('#username').show();
+    if (docUser) {
+      $('#username').text(docUser.username);
+    }
+  } else {
+    $('#login').show();
+    $('#sign-out').hide();
+  }
+}
+
+// Page startup
+$(() => {
+  $('#login-alert').hide();
+});
+
+// Opens the login/signup modal on click of login icon
 $('#login').on('click', () => {
-  $('#exampleModalCenter').modal('toggle');
+  $('#login-signup-modal').modal('toggle');
+});
+
+// Handles signing user out upon clicking sign out button
+$('#sign-out').on('click', () => {
+  userDB.signout((error) => {
+    if (error) {
+      alert('Error Signing out');
+    }
+    location.reload();
+  });
 });
 
 $(function () {
@@ -65,6 +118,7 @@ textInput.addEventListener('input', (e) => {
   }
 });
 
+// Handles signup form submission
 $('#signupForm').on('submit', (e) => {
   e.preventDefault();
   let userInfo = $('#signupForm').serializeArray();
@@ -74,46 +128,47 @@ $('#signupForm').on('submit', (e) => {
     (form) => form.name === 'confirm_password'
   ).value;
   let username = userInfo.find((form) => form.name === 'username').value;
-  validateUserInfo(email, password, confirmPassword, username, (error) => {
-    if (!error) {
-      user.signup(email, password, (error) => {
-        if (error) {
-          console.log(error);
-          return;
-        }
-        location.reload();
-      });
-    }
-  });
-});
-
-$('#loginForm').on('submit', (e) => {
-  e.preventDefault();
-  user.login($('#loginForm').serializeArray(), (error) => {
+  if (!validatePasswordsMatch(password, confirmPassword)) {
+    return;
+  }
+  userDB.signup(email, password, username, (error) => {
     if (error) {
-      console.log(error);
+      alert('Error creating account, please try again');
       return;
     }
     location.reload();
   });
 });
 
-function validateUserInfo(
-  email,
-  password,
-  confirmPassword,
-  username,
-  callback
-) {
+// Handles login form submission
+$('#loginForm').on('submit', (e) => {
+  e.preventDefault();
+  let userInfo = $('#loginForm').serializeArray();
+  let email = userInfo.find((form) => form.name === 'email').value;
+  let password = userInfo.find((form) => form.name === 'password').value;
+  userDB.login(email, password, (error) => {
+    if (error) {
+      $('#login-alert').show();
+      return;
+    }
+    location.reload();
+  });
+});
+
+/**
+ * Returns whether or not the passord and confirm password match. Sets validity error if they do not.
+ *
+ * @param {string} password Password to check
+ * @param {string} confirmPassword confirmPassword to check
+ */
+function validatePasswordsMatch(password, confirmPassword) {
   if (password !== confirmPassword) {
     document
       .getElementById('signin_confirm_password')
       .setCustomValidity('Passwords must match');
-  } else if (false) {
-    //validate username
-  } else {
-    callback(null);
+    return false;
   }
+  return true;
 }
 
 /**

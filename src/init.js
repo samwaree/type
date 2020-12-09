@@ -1,5 +1,3 @@
-var firebase = require('firebase/app');
-
 const firebaseConfig = {
   apiKey: 'AIzaSyCdpnqlaX_7OaHNJXVltBS95AA_oCWDI0o',
   authDomain: 'type-f89e5.firebaseapp.com',
@@ -10,8 +8,4 @@ const firebaseConfig = {
   measurementId: 'G-8FTLCWGV2M',
 };
 
-function initFirebase() {
-  firebase.default.initializeApp(firebaseConfig);
-}
-
-module.exports = { initFirebase };
+firebase.initializeApp(firebaseConfig);
