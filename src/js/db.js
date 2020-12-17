@@ -98,7 +98,7 @@ function createUser(username, userId, callback) {
 /**
  * Returns the User given the firebase auth user
  * 
- * @param {map} user User firebase auth object
+ * @param {Map} user User firebase auth object
  * @param {function} callback Callback function, returns user doc data or error if error
 
  */
@@ -122,4 +122,42 @@ function getUser(user, callback) {
     });
 }
 
-module.exports = { signup, login, signout, getUser };
+/**
+ * Sets the User's best WPM in the db
+ * @param {String} userId
+ * @param {Number} wpm
+ * @param {function} callback
+ */
+function setBestWPM(userId, wpm, callback) {
+  db.collection('users')
+    .doc(userId)
+    .update({ bestWPM: wpm })
+    .then(() => callback(null))
+    .catch((error) => {
+      callback(error);
+    });
+}
+
+/**
+ * Saves the result of a test in the db
+ * @param {String} userId
+ * @param {Map} results
+ * @param {function} callback
+ */
+function saveResults(userId, results, callback) {
+  db.collection('tests')
+    .add({
+      userId: userId,
+      results: results,
+      datetime: firebase.firestore.Timestamp.now(),
+    })
+    .then((docRef) => {
+      console.log('Test saved successfully');
+      callback(null);
+    })
+    .catch((error) => {
+      callback(error);
+    });
+}
+
+module.exports = { signup, login, signout, getUser, saveResults, setBestWPM };
