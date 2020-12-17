@@ -1,7 +1,6 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CopyPlugin = require('copy-webpack-plugin');
-const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 
 module.exports = (env) => {
   return {
@@ -12,9 +11,9 @@ module.exports = (env) => {
       filename: 'bundle.js',
       path: path.resolve(__dirname, 'dist'),
     },
+    devtool: 'source-map',
     watch: env === 'dev' ? true : false,
     plugins: [
-      new CleanWebpackPlugin(),
       new CopyPlugin({
         patterns: [
           { from: './src/themes', to: 'themes' },

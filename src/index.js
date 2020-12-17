@@ -1,14 +1,25 @@
 require('./style.css');
 require('./assets/favicon.ico');
-const timer = require('./js/timer.js');
 const Cookies = require('js-cookie');
 const words = require('./words.json').words;
-const userDB = require('./js/user.js');
+const db = require('./js/db.js');
+const Timer = require('tiny-timer').default;
 
 const wordDisplay = document.getElementById('words');
 const textInput = document.getElementById('text-input');
 const highestWPM = document.getElementById('highest-wpm');
 const wordCountButtons = document.getElementById('word-count-select');
+
+const timer = new Timer({ interval: 1000, stopwatch: true });
+const maxTime = 1200000;
+
+const darkModeWPMGraphColor = 'rgba(0, 255, 255, .2)';
+const darkModeAccuracyColor = 'rgba(0, 177, 0, .1)';
+const lightModeAccuracyColor = 'rgba(0, 177, 0, .2)';
+const lightModeWPMGraphColor = 'rgba(0, 0, 255, .2)';
+
+var wpmGraphColor;
+var accuracyGraphColor;
 
 var authUser;
 var docUser;
@@ -17,6 +28,8 @@ let wordCount = 25;
 let errorCount = 0;
 let wordList;
 let currentWordPosition = 0;
+var testResults = [];
+var resultGraph;
 
 loadCookies();
 loadWords();
@@ -29,16 +42,109 @@ firebase.auth().onAuthStateChanged(() => {
 
   if (!isAuthReady) {
     isAuthReady = true;
-    userDB.getUser(authUser, (u, error) => {
+    db.getUser(authUser, (u, error) => {
       if (error) {
         console.log(error);
       }
       docUser = u;
       loadNavBar();
+      loadBestWPM();
       $('.loader-wrapper').fadeOut('slow');
     });
   }
 });
+
+/**
+ * Loads results panel. TODO: Cleanup this method
+ */
+function loadResults() {
+  var ctx = document.getElementById('resultsChart').getContext('2d');
+  resultGraph = new Chart(ctx, {
+    type: 'line',
+    label: 'Seconds',
+    data: {
+      labels: testResults.map((a) => a.seconds),
+      datasets: [
+        {
+          label: 'WPM',
+          data: testResults.map((a) => a.wpm),
+          backgroundColor: wpmGraphColor,
+          borderColor: wpmGraphColor,
+          yAxisID: 'y',
+        },
+        {
+          label: 'Accuracy',
+          data: testResults.map((a) => a.accuracy),
+          backgroundColor: accuracyGraphColor,
+          borderColor: accuracyGraphColor,
+          fill: true,
+          yAxisID: 'y1',
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      responsiveAnimationDuration: 500,
+      legend: {
+        display: false,
+      },
+      scales: {
+        xAxes: [
+          {
+            scaleLabel: {
+              display: true,
+              labelString: 'seconds',
+            },
+            ticks: { maxTicksLimit: 11 },
+          },
+        ],
+        yAxes: [
+          {
+            scaleLabel: {
+              display: true,
+              labelString: 'wpm',
+            },
+            ticks: {
+              min: 0,
+            },
+            type: 'linear',
+            display: true,
+            position: 'left',
+            id: 'y',
+          },
+          {
+            scaleLabel: {
+              display: true,
+              labelString: 'accuracy',
+            },
+            type: 'linear',
+            display: true,
+            position: 'right',
+            ticks: {
+              max: 100,
+              min: 0,
+            },
+            id: 'y1',
+            gridLines: {
+              drawOnChartArea: false, // only want the grid lines for one axis to show up
+            },
+          },
+        ],
+      },
+    },
+  });
+  $('#main-page').fadeOut(500, (complete) => {
+    $('#results').fadeIn(500);
+  });
+}
+
+/**
+ * Loads the Best WPM from user if they are logged in.
+ */
+function loadBestWPM() {
+  highestWPM.innerHTML =
+    docUser === null || docUser.bestWPM === undefined ? 'XX' : docUser.bestWPM;
+}
 
 /**
  * Loads the NavBar depending on if the user is logged in or not
@@ -48,6 +154,7 @@ function loadNavBar() {
     $('#login').hide();
     $('#sign-out').show();
     $('#username').show();
+    $('#loginToSave').hide();
     if (docUser) {
       $('#username').text(docUser.username);
     }
@@ -60,6 +167,7 @@ function loadNavBar() {
 // Page startup
 $(() => {
   $('#login-alert').hide();
+  $('#results').hide();
 });
 
 // Opens the login/signup modal on click of login icon
@@ -67,9 +175,17 @@ $('#login').on('click', () => {
   $('#login-signup-modal').modal('toggle');
 });
 
+$('#goBackToTest').on('click', () => {
+  loadWords();
+  $('#results').fadeOut(500, (complete) => {
+    $('#main-page').fadeIn(500);
+    resultGraph.destroy();
+  });
+});
+
 // Handles signing user out upon clicking sign out button
 $('#sign-out').on('click', () => {
-  userDB.signout((error) => {
+  db.signout((error) => {
     if (error) {
       alert('Error Signing out');
     }
@@ -84,15 +200,31 @@ $(function () {
 $('#theme-switch').on('change.bootstrapSwitch', (e) => {
   if (e.target.checked) {
     document.getElementById('theme').href = './themes/dark.css';
-    Cookies.set('theme', 'dark', { expires: 7 });
+    Cookies.set('theme', 'dark', { expires: 999 });
+    wpmGraphColor = darkModeWPMGraphColor;
+    accuracyGraphColor = darkModeAccuracyColor;
   } else {
     document.getElementById('theme').href = './themes/light.css';
-    Cookies.set('theme', 'light', { expires: 7 });
+    Cookies.set('theme', 'light', { expires: 999 });
+    wpmGraphColor = lightModeWPMGraphColor;
+    accuracyGraphColor = lightModeAccuracyColor;
   }
 });
 
 wordCountButtons.addEventListener('click', (e) => {
   setWordCount(Number(e.target.innerText));
+});
+
+timer.on('tick', (ms) => {
+  if (ms == 0) {
+    return;
+  }
+  let results = calculateResults(
+    ms / 60000,
+    wordList.slice(0, currentWordPosition),
+    Math.round(ms / 1000)
+  );
+  testResults.push(results);
 });
 
 // Handles the text input bar
@@ -105,8 +237,8 @@ textInput.addEventListener('input', (e) => {
       textInput.value = '';
     }
   } else {
-    if (currentWordPosition == 0) {
-      timer.startTimer();
+    if (currentWordPosition == 0 && timer.status != 'running') {
+      timer.start(maxTime);
     }
     if (currentWordPosition < wordCount) {
       if (getCurrentWord().startsWith(textInput.value)) {
@@ -131,7 +263,7 @@ $('#signupForm').on('submit', (e) => {
   if (!validatePasswordsMatch(password, confirmPassword)) {
     return;
   }
-  userDB.signup(email, password, username, (error) => {
+  db.signup(email, password, username, (error) => {
     if (error) {
       alert('Error creating account, please try again');
       return;
@@ -146,7 +278,7 @@ $('#loginForm').on('submit', (e) => {
   let userInfo = $('#loginForm').serializeArray();
   let email = userInfo.find((form) => form.name === 'email').value;
   let password = userInfo.find((form) => form.name === 'password').value;
-  userDB.login(email, password, (error) => {
+  db.login(email, password, (error) => {
     if (error) {
       $('#login-alert').show();
       return;
@@ -186,7 +318,8 @@ function loadWords() {
 
   // Reset tracking variables, highlighting and text box
   hightlightCurrentWord(0);
-  timer.endTimer();
+  testResults = [];
+  timer.stop();
   currentWordPosition = 0;
   errorCount = 0;
   textInput.classList.remove('wrong');
@@ -220,13 +353,15 @@ function setWordCount(number) {
  * Loads cookies for page. Currently loads: best wpm.
  */
 function loadCookies() {
-  const wpmCookie = Cookies.get('wpm') ? Cookies.get('wpm') : 'XX';
-  highestWPM.innerHTML = `BEST: ${wpmCookie}`;
   if (Cookies.get('theme') == 'dark') {
     $('#theme-switch').attr('checked', '');
     document.getElementById('theme').href = './themes/dark.css';
+    wpmGraphColor = darkModeWPMGraphColor;
+    accuracyGraphColor = darkModeAccuracyColor;
   } else {
     document.getElementById('theme').href = './themes/light.css';
+    wpmGraphColor = lightModeWPMGraphColor;
+    accuracyGraphColor = lightModeAccuracyColor;
   }
 }
 
@@ -235,9 +370,17 @@ function loadCookies() {
  * @param {number} wpm The wpm to check/set as best
  */
 function setBestWPM(wpm) {
-  if (wpm > Cookies.get('wpm') || Cookies.get('wpm') == undefined) {
-    Cookies.set('wpm', wpm, { expires: 7 });
-    highestWPM.innerHTML = `BEST: ${wpm}`;
+  if (!authUser) {
+    if (wpm > highestWPM.innerHTML || highestWPM.innerHTML == 'XX') {
+      highestWPM.innerHTML = wpm;
+    }
+  } else if (wpm > docUser.bestWPM || docUser.bestWPM === undefined) {
+    db.setBestWPM(authUser.uid, wpm, (error) => {
+      if (error) {
+        console.log(error);
+      }
+    });
+    highestWPM.innerHTML = wpm;
   }
 }
 
@@ -246,7 +389,7 @@ function setBestWPM(wpm) {
  * Doesn't do anything if the timer hasn't started
  */
 function nextWord() {
-  if (!timer.isTimerRunning()) {
+  if (timer.status != 'running') {
     return;
   }
   if (getCurrentWord() === textInput.value) {
@@ -259,8 +402,27 @@ function nextWord() {
     highlightIncorrect(currentWordPosition++);
   }
   if (currentWordPosition == wordCount) {
-    const minutesTaken = timer.endTimer();
-    calculateAndSetWPM(minutesTaken);
+    let msTaken = timer.time;
+    const minutesTaken = msTaken / 60000;
+    const secondsTaken = msTaken / 1000;
+    timer.stop();
+    let results = calculateResults(
+      minutesTaken,
+      wordList,
+      roundToTwo(secondsTaken)
+    );
+    testResults.push(results);
+    setBestWPM(results.wpm);
+    document.getElementById('wpm').innerHTML = results.wpm;
+    document.getElementById('accuracy').innerHTML = results.accuracy;
+    loadResults();
+    if (authUser) {
+      db.saveResults(authUser.uid, testResults, (error) => {
+        if (error) {
+          console.log(error);
+        }
+      });
+    }
   } else {
     hightlightCurrentWord(currentWordPosition);
   }
@@ -268,21 +430,36 @@ function nextWord() {
 }
 
 /**
- * Calculates and sets the WPM.
- * @param {number} minutesTaken Number of minutes taken
+ * Rounds number to two decimal places
+ * @param {Number} num
  */
-function calculateAndSetWPM(minutesTaken) {
-  const totalCharacters = wordList.join(' ').length;
+function roundToTwo(num) {
+  return +(Math.round(num + 'e+2') + 'e-2');
+}
+
+/**
+ * Gets the results form the test given the words completed, minutes and seconds taken.
+ *
+ * @param {Number} minutesTaken Number of minutes taken
+ * @param {Array} wordsCompleted Array of words already completed
+ * @param {Number} secondsTaken Number of seconds taken
+ */
+function calculateResults(minutesTaken, wordsCompleted, secondsTaken) {
+  const totalCharacters = wordsCompleted.join(' ').length;
   let adjustedWordsPerMinute =
     (totalCharacters / 5 - errorCount / 5) / minutesTaken;
-  adjustedWordsPerMinute =
-    adjustedWordsPerMinute < 0 ? 0 : adjustedWordsPerMinute;
-  document.getElementById('wpm').innerHTML = `WPM: ${Math.floor(
-    adjustedWordsPerMinute
-  )} -- ACCURACY: ${Math.floor(
+  adjustedWordsPerMinute = Math.floor(
+    adjustedWordsPerMinute < 0 ? 0 : adjustedWordsPerMinute
+  );
+  let accuracy = Math.floor(
     ((totalCharacters - errorCount) / totalCharacters) * 100
-  )}`;
-  setBestWPM(Math.floor(adjustedWordsPerMinute));
+  );
+  accuracy = accuracy < 0 ? 0 : accuracy;
+  return {
+    wpm: isNaN(adjustedWordsPerMinute) ? 0 : adjustedWordsPerMinute,
+    accuracy: isNaN(accuracy) ? 100 : accuracy,
+    seconds: secondsTaken,
+  };
 }
 
 /**
