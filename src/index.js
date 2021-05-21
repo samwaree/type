@@ -24,6 +24,7 @@ var accuracyGraphColor;
 var authUser;
 var docUser;
 
+let onResultsPage = false;
 let wordCount = 25;
 let errorCount = 0;
 let wordList;
@@ -133,10 +134,23 @@ function loadResults() {
       },
     },
   });
-  $('#main-page').fadeOut(500, (complete) => {
-    $('#results').fadeIn(500);
+  $('#main-page').fadeOut(300, (complete) => {
+    $('#results').fadeIn(300);
+    onResultsPage = true;
   });
 }
+
+/**
+ * Handles keypress inputs for the site.
+ *
+ * @param {Object} e keypress event
+ */
+document.onkeypress = (e) => {
+  e = e || window.event;
+  if (e.key === ' ') {
+    goBackToTest();
+  }
+};
 
 /**
  * Loads the Best WPM from user if they are logged in.
@@ -176,11 +190,7 @@ $('#login').on('click', () => {
 });
 
 $('#goBackToTest').on('click', () => {
-  loadWords();
-  $('#results').fadeOut(500, (complete) => {
-    $('#main-page').fadeIn(500);
-    resultGraph.destroy();
-  });
+  goBackToTest();
 });
 
 // Handles signing user out upon clicking sign out button
@@ -288,6 +298,22 @@ $('#loginForm').on('submit', (e) => {
 });
 
 /**
+ * If on the results page, goes back to the test page
+ */
+function goBackToTest() {
+  if (onResultsPage) {
+    loadWords();
+    $('#results').fadeOut(300, (complete) => {
+      $('#main-page').fadeIn(300, () => {
+        textInput.focus();
+      });
+      onResultsPage = false;
+      resultGraph.destroy();
+    });
+  }
+}
+
+/**
  * Returns whether or not the passord and confirm password match. Sets validity error if they do not.
  *
  * @param {string} password Password to check
@@ -324,7 +350,9 @@ function loadWords() {
   errorCount = 0;
   textInput.classList.remove('wrong');
   textInput.value = '';
-  textInput.focus();
+  setTimeout(() => {
+    textInput.focus();
+  }, 10);
 }
 
 /**
