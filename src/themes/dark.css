@@ -30,12 +30,21 @@ div,
   color: white;
 }
 
-.current-word {
-  color: cyan;
+.letter {
+  color: rgb(160, 160, 160);
 }
 
-.incorrect {
+.correct-letter {
+  color: white !important;
+}
+
+.incorrect-letter {
   color: rgb(255, 67, 67);
+}
+
+.incorrect > span:not(.space) {
+  text-decoration: underline;
+  text-decoration-color: rgb(255, 67, 67);
 }
 
 .correct {

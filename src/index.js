@@ -29,6 +29,7 @@ let wordCount = 25;
 let errorCount = 0;
 let wordList;
 let currentWordPosition = 0;
+let currentLetterPosition = 0;
 var testResults = [];
 var resultGraph;
 
@@ -251,6 +252,7 @@ textInput.addEventListener('input', (e) => {
       timer.start(maxTime);
     }
     if (currentWordPosition < wordCount) {
+      handleLetterInput(e.data);
       if (getCurrentWord().startsWith(textInput.value)) {
         textInput.classList.remove('wrong');
       } else {
@@ -259,6 +261,46 @@ textInput.addEventListener('input', (e) => {
     }
   }
 });
+
+function handleLetterInput(letter) {
+  const childNodes = wordDisplay.childNodes;
+  const word = childNodes[currentWordPosition];
+
+  if (letter) {
+    if (currentLetterPosition >= wordList[currentWordPosition].length) {
+      const newLetter = document.createElement('span');
+      newLetter.innerHTML = letter;
+      newLetter.classList.add('incorrect-letter');
+      word.insertBefore(newLetter, word.lastChild);
+    } else {
+      word.childNodes[currentLetterPosition].innerHTML = letter;
+      if (letter !== wordList[currentWordPosition][currentLetterPosition]) {
+        word.childNodes[currentLetterPosition].classList.add(
+          'incorrect-letter'
+        );
+      } else {
+        word.childNodes[currentLetterPosition].classList.add('correct-letter');
+      }
+    }
+    currentLetterPosition++;
+  } else {
+    currentLetterPosition--;
+    if (currentLetterPosition >= wordList[currentWordPosition].length) {
+      word.removeChild(word.lastChild.previousSibling);
+    } else {
+      word.childNodes[currentLetterPosition].innerHTML =
+        wordList[currentWordPosition][currentLetterPosition];
+      word.childNodes[currentLetterPosition].classList.remove(
+        'incorrect-letter'
+      );
+      word.childNodes[currentLetterPosition].classList.remove('correct-letter');
+    }
+  }
+  document.getElementById('cursor').style.top =
+    word.childNodes[currentLetterPosition].offsetTop + 1 + 'px';
+  document.getElementById('cursor').style.left =
+    word.childNodes[currentLetterPosition].offsetLeft - 2 + 'px';
+}
 
 // Handles signup form submission
 $('#signupForm').on('submit', (e) => {
@@ -337,9 +379,18 @@ function loadWords() {
 
   wordList = getRandomWords(wordCount);
   wordList.forEach((word) => {
-    const span = document.createElement('span');
-    span.innerHTML = word + ' ';
-    wordDisplay.appendChild(span);
+    let wordSpan = document.createElement('span');
+    [...word].forEach((letter, index) => {
+      let span = document.createElement('span');
+      span.innerHTML = letter;
+      span.classList.add('letter');
+      wordSpan.appendChild(span);
+    });
+    let space = document.createElement('span');
+    space.innerHTML = ' ';
+    space.classList.add('space');
+    wordSpan.appendChild(space);
+    wordDisplay.appendChild(wordSpan);
   });
 
   // Reset tracking variables, highlighting and text box
@@ -347,11 +398,14 @@ function loadWords() {
   testResults = [];
   timer.stop();
   currentWordPosition = 0;
+  currentLetterPosition = 0;
   errorCount = 0;
   textInput.classList.remove('wrong');
   textInput.value = '';
   setTimeout(() => {
     textInput.focus();
+    document.getElementById('cursor').style.top = '13px';
+    document.getElementById('cursor').style.left = '28px';
   }, 10);
 }
 
@@ -420,15 +474,16 @@ function nextWord() {
   if (timer.status != 'running') {
     return;
   }
-  if (getCurrentWord() === textInput.value) {
-    highlightCorrect(currentWordPosition++);
-  } else {
-    errorCount += getCurrentWord().length;
+  currentLetterPosition = 0;
+  if (wordList[currentWordPosition] !== textInput.value) {
+    errorCount += wordList[currentWordPosition].length;
     if (currentWordPosition + 1 < wordCount) {
       errorCount++;
     }
-    highlightIncorrect(currentWordPosition++);
+    highlightIncorrect(currentWordPosition);
   }
+  currentWordPosition++;
+
   if (currentWordPosition == wordCount) {
     let msTaken = timer.time;
     const minutesTaken = msTaken / 60000;
@@ -510,17 +565,8 @@ function hightlightCurrentWord(position) {
   const word = childNodes[position];
   word.classList = [];
   word.classList.add('current-word');
-}
-
-/**
- * Hightlights the word at index position as correct
- * @param {number} position The position/index of the word to highlight
- *  as correct
- */
-function highlightCorrect(position) {
-  const childNodes = wordDisplay.children;
-  const word = childNodes[position];
-  word.classList.add('correct');
+  document.getElementById('cursor').style.top = word.offsetTop + 1 + 'px';
+  document.getElementById('cursor').style.left = word.offsetLeft - 2 + 'px';
 }
 
 /**

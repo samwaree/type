@@ -85,7 +85,15 @@ canvas {
 
 #words,
 #text-input {
-  font-size: 20px;
+  font-size: 22px;
+}
+
+.cursor {
+  height: 28px;
+  width: 2px;
+  background-color: #ffc947;
+  position: absolute;
+  transition: top 0.1s, left 0.1s;
 }
 
 #highest-wpm {
