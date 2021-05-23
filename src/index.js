@@ -6,12 +6,12 @@ const db = require('./js/db.js');
 const Timer = require('tiny-timer').default;
 
 const wordDisplay = document.getElementById('words');
-const textInput = document.getElementById('text-input');
 const highestWPM = document.getElementById('highest-wpm');
 const wordCountButtons = document.getElementById('word-count-select');
 
 const timer = new Timer({ interval: 1000, stopwatch: true });
 const maxTime = 1200000;
+const MAX_NUMBER_OF_LETTERS = 30;
 
 const darkModeWPMGraphColor = 'rgba(0, 255, 255, .2)';
 const darkModeAccuracyColor = 'rgba(0, 177, 0, .1)';
@@ -29,6 +29,8 @@ let wordCount = 25;
 let errorCount = 0;
 let wordList;
 let currentWordPosition = 0;
+let currentLetterPosition = 0;
+let currentWordInput = '';
 var testResults = [];
 var resultGraph;
 
@@ -145,10 +147,30 @@ function loadResults() {
  *
  * @param {Object} e keypress event
  */
-document.onkeypress = (e) => {
+document.onkeydown = (e) => {
   e = e || window.event;
-  if (e.key === ' ') {
+  if (e.key === ' ' && onResultsPage) {
     goBackToTest();
+  } else if (e.key === ' ') {
+    e.preventDefault();
+    let redoButton = document.getElementById('redo-button');
+    if (document.activeElement === redoButton) {
+      loadWords();
+      return;
+    }
+    if (currentWordInput != '') {
+      nextWord();
+      currentWordInput = '';
+    }
+  } else if ((e.keyCode >= 49 && e.keyCode <= 90) || e.keyCode === 8) {
+    // If the keycode is alpha/numberic or Backspace
+    if (currentWordPosition == 0 && timer.status != 'running') {
+      timer.start(maxTime);
+      document.getElementById('jumbotron').focus();
+    }
+    if (currentWordPosition < wordCount) {
+      handleLetterInput(e.key);
+    }
   }
 };
 
@@ -237,28 +259,53 @@ timer.on('tick', (ms) => {
   testResults.push(results);
 });
 
-// Handles the text input bar
-textInput.addEventListener('input', (e) => {
-  if (e.data === ' ') {
-    e.preventDefault();
-    textInput.value = textInput.value.slice(0, -1);
-    if (textInput.value != '') {
-      nextWord();
-      textInput.value = '';
+function handleLetterInput(letter) {
+  const childNodes = wordDisplay.childNodes;
+  const word = childNodes[currentWordPosition];
+
+  if (letter !== 'Backspace') {
+    if (word.childNodes.length >= MAX_NUMBER_OF_LETTERS) {
+      return;
     }
-  } else {
-    if (currentWordPosition == 0 && timer.status != 'running') {
-      timer.start(maxTime);
-    }
-    if (currentWordPosition < wordCount) {
-      if (getCurrentWord().startsWith(textInput.value)) {
-        textInput.classList.remove('wrong');
+    currentWordInput += letter;
+    if (currentLetterPosition >= wordList[currentWordPosition].length) {
+      const newLetter = document.createElement('span');
+      newLetter.innerHTML = letter;
+      newLetter.classList.add('incorrect-letter');
+      word.insertBefore(newLetter, word.lastChild);
+    } else {
+      word.childNodes[currentLetterPosition].innerHTML = letter;
+      if (letter !== wordList[currentWordPosition][currentLetterPosition]) {
+        word.childNodes[currentLetterPosition].classList.add(
+          'incorrect-letter'
+        );
       } else {
-        textInput.classList.add('wrong');
+        word.childNodes[currentLetterPosition].classList.add('correct-letter');
       }
     }
+    currentLetterPosition++;
+  } else {
+    if (currentLetterPosition === 0) {
+      return;
+    }
+    currentWordInput = currentWordInput.slice(0, -1);
+    currentLetterPosition--;
+    if (currentLetterPosition >= wordList[currentWordPosition].length) {
+      word.removeChild(word.lastChild.previousSibling);
+    } else {
+      word.childNodes[currentLetterPosition].innerHTML =
+        wordList[currentWordPosition][currentLetterPosition];
+      word.childNodes[currentLetterPosition].classList.remove(
+        'incorrect-letter'
+      );
+      word.childNodes[currentLetterPosition].classList.remove('correct-letter');
+    }
   }
-});
+  document.getElementById('cursor').style.top =
+    word.childNodes[currentLetterPosition].offsetTop + 1 + 'px';
+  document.getElementById('cursor').style.left =
+    word.childNodes[currentLetterPosition].offsetLeft - 2 + 'px';
+}
 
 // Handles signup form submission
 $('#signupForm').on('submit', (e) => {
@@ -304,9 +351,7 @@ function goBackToTest() {
   if (onResultsPage) {
     loadWords();
     $('#results').fadeOut(300, (complete) => {
-      $('#main-page').fadeIn(300, () => {
-        textInput.focus();
-      });
+      $('#main-page').fadeIn();
       onResultsPage = false;
       resultGraph.destroy();
     });
@@ -337,9 +382,18 @@ function loadWords() {
 
   wordList = getRandomWords(wordCount);
   wordList.forEach((word) => {
-    const span = document.createElement('span');
-    span.innerHTML = word + ' ';
-    wordDisplay.appendChild(span);
+    let wordSpan = document.createElement('span');
+    [...word].forEach((letter, index) => {
+      let span = document.createElement('span');
+      span.innerHTML = letter;
+      span.classList.add('letter');
+      wordSpan.appendChild(span);
+    });
+    let space = document.createElement('span');
+    space.innerHTML = ' ';
+    space.classList.add('space');
+    wordSpan.appendChild(space);
+    wordDisplay.appendChild(wordSpan);
   });
 
   // Reset tracking variables, highlighting and text box
@@ -347,11 +401,14 @@ function loadWords() {
   testResults = [];
   timer.stop();
   currentWordPosition = 0;
+  currentLetterPosition = 0;
   errorCount = 0;
-  textInput.classList.remove('wrong');
-  textInput.value = '';
+  currentWordInput = '';
   setTimeout(() => {
-    textInput.focus();
+    document.getElementById('cursor').style.top = '13px';
+    document.getElementById('cursor').style.left = '28px';
+    document.getElementById('redo-button').blur();
+    document.getElementById('jumbotron').focus();
   }, 10);
 }
 
@@ -420,15 +477,16 @@ function nextWord() {
   if (timer.status != 'running') {
     return;
   }
-  if (getCurrentWord() === textInput.value) {
-    highlightCorrect(currentWordPosition++);
-  } else {
-    errorCount += getCurrentWord().length;
+  currentLetterPosition = 0;
+  if (wordList[currentWordPosition] !== currentWordInput) {
+    errorCount += wordList[currentWordPosition].length;
     if (currentWordPosition + 1 < wordCount) {
       errorCount++;
     }
-    highlightIncorrect(currentWordPosition++);
+    highlightIncorrect(currentWordPosition);
   }
+  currentWordPosition++;
+
   if (currentWordPosition == wordCount) {
     let msTaken = timer.time;
     const minutesTaken = msTaken / 60000;
@@ -454,7 +512,6 @@ function nextWord() {
   } else {
     hightlightCurrentWord(currentWordPosition);
   }
-  textInput.classList.remove('wrong');
 }
 
 /**
@@ -510,17 +567,8 @@ function hightlightCurrentWord(position) {
   const word = childNodes[position];
   word.classList = [];
   word.classList.add('current-word');
-}
-
-/**
- * Hightlights the word at index position as correct
- * @param {number} position The position/index of the word to highlight
- *  as correct
- */
-function highlightCorrect(position) {
-  const childNodes = wordDisplay.children;
-  const word = childNodes[position];
-  word.classList.add('correct');
+  document.getElementById('cursor').style.top = word.offsetTop + 1 + 'px';
+  document.getElementById('cursor').style.left = word.offsetLeft - 2 + 'px';
 }
 
 /**

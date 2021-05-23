@@ -139,12 +139,9 @@
       </div>
       <div id="main-page">
         <div class="row">
-          <div class="col align-self-center">
-            <div class="custom-control custom-switch">
-              <input type="checkbox" class="custom-control-input" id="theme-switch">
-              <label class="custom-control-label" style="padding-left: 5px;" for="theme-switch"><i
-                  class="fas fa-moon"></i></label>
-            </div>
+          <div class="col d-flex justify-content-start words-time-picker">
+            <p class="word-time-option word-time-option-active">wordcount</p>
+            <p class="word-time-option" data-toggle="tooltip" title="Coming soon!">time</p>
           </div>
           <div class="col">
             <h6 style="margin-bottom: 0px;" align="right">BEST: <span id="highest-wpm"></span></h6>
@@ -174,20 +171,21 @@
         </div>
         <div class="row top-padding">
           <div class="col">
-            <div class="jumbotron">
+            <div id="jumbotron" class="jumbotron" tabindex="0">
+              <div id="cursor" class="cursor"></div>
               <div id="words"></div>
             </div>
           </div>
         </div>
-        <div class="row top-padding">
-          <div class="col">
-            <div class="input-group mb-3">
-              <input autocomplete="off" id="text-input" type="text" class="form-control" />
-              <div data-toggle="tooltip" data-placement="bottom" title="Redo" class="input-group-append">
-                <button class="btn btn-outline-secondary" type="button" onclick="TypingTester.loadWords()">
-                  <i class="fas fa-redo"></i>
-                </button>
-              </div>
+        <div class="row-12 top-padding align-items-center">
+          <div class="d-flex justify-content-between">
+            <button id="redo-button" class="btn btn-outline-secondary" type="button" onclick="TypingTester.loadWords()">
+              <i class="fas fa-redo"></i>
+            </button>
+            <div class="custom-control custom-switch d-flex align-items-start">
+              <input type="checkbox" class="custom-control-input" id="theme-switch">
+              <label class="custom-control-label" style="padding-left: 5px;" for="theme-switch"><i
+                  class="fas fa-moon"></i></label>
             </div>
           </div>
         </div>

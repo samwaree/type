@@ -79,13 +79,28 @@ canvas {
   font-size: 18px;
 }
 
+.input-group-append {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
 #text-input {
   padding-top: 0px !important;
 }
 
 #words,
 #text-input {
-  font-size: 20px;
+  font-size: 22px;
+}
+
+.cursor {
+  height: 28px;
+  width: 3px;
+  border-radius: 1px;
+  position: absolute;
+  transition: top 0.1s, left 0.1s;
 }
 
 #highest-wpm {
@@ -96,6 +111,10 @@ canvas {
 
 .top-padding {
   margin-top: 21px;
+}
+
+.top-padding-small {
+  margin-top: 10px;
 }
 
 .no-padding {
@@ -116,12 +135,35 @@ canvas {
   margin-bottom: 0 !important;
 }
 
+.words-time-picker {
+  gap: 12px;
+}
+
+.word-time-option {
+  margin-bottom: 0;
+  font-size: 18px;
+  cursor: pointer;
+  opacity: 0.8;
+  transform: scale(0.8);
+  transition: transform 0.2s;
+}
+
+.word-time-option-active {
+  opacity: 1 !important;
+  font-weight: bold;
+  transform: scale(1);
+}
+
 .jumbotron {
   padding-top: 10px;
   padding-left: 15px;
   padding-right: 15px;
   padding-bottom: 10px;
   margin: 0;
+}
+
+.jumbotron:focus {
+  outline: none;
 }
 
 .title {

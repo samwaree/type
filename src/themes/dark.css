@@ -30,16 +30,29 @@ div,
   color: white;
 }
 
-.current-word {
-  color: cyan;
+.letter {
+  color: rgb(160, 160, 160);
 }
 
-.incorrect {
-  color: rgb(255, 67, 67);
+.correct-letter {
+  color: white !important;
+}
+
+.incorrect-letter {
+  color: #eb3d3d;
+}
+
+.incorrect > span:not(.space) {
+  text-decoration: underline;
+  text-decoration-color: rgb(255, 67, 67);
 }
 
 .correct {
   color: rgb(0, 177, 0);
+}
+
+.cursor {
+  background-color: #269feb;
 }
 
 .wrong:focus,
