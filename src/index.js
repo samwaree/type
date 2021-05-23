@@ -11,6 +11,7 @@ const wordCountButtons = document.getElementById('word-count-select');
 
 const timer = new Timer({ interval: 1000, stopwatch: true });
 const maxTime = 1200000;
+const MAX_NUMBER_OF_LETTERS = 30;
 
 const darkModeWPMGraphColor = 'rgba(0, 255, 255, .2)';
 const darkModeAccuracyColor = 'rgba(0, 177, 0, .1)';
@@ -152,18 +153,20 @@ document.onkeydown = (e) => {
     goBackToTest();
   } else if (e.key === ' ') {
     e.preventDefault();
+    let redoButton = document.getElementById('redo-button');
+    if (document.activeElement === redoButton) {
+      loadWords();
+      return;
+    }
     if (currentWordInput != '') {
       nextWord();
       currentWordInput = '';
     }
   } else if ((e.keyCode >= 49 && e.keyCode <= 90) || e.keyCode === 8) {
-    if (e.keyCode !== 8) {
-      currentWordInput += e.key;
-    } else {
-      currentWordInput = currentWordInput.slice(0, -1);
-    }
+    // If the keycode is alpha/numberic or Backspace
     if (currentWordPosition == 0 && timer.status != 'running') {
       timer.start(maxTime);
+      document.getElementById('jumbotron').focus();
     }
     if (currentWordPosition < wordCount) {
       handleLetterInput(e.key);
@@ -261,6 +264,10 @@ function handleLetterInput(letter) {
   const word = childNodes[currentWordPosition];
 
   if (letter !== 'Backspace') {
+    if (word.childNodes.length >= MAX_NUMBER_OF_LETTERS) {
+      return;
+    }
+    currentWordInput += letter;
     if (currentLetterPosition >= wordList[currentWordPosition].length) {
       const newLetter = document.createElement('span');
       newLetter.innerHTML = letter;
@@ -281,6 +288,7 @@ function handleLetterInput(letter) {
     if (currentLetterPosition === 0) {
       return;
     }
+    currentWordInput = currentWordInput.slice(0, -1);
     currentLetterPosition--;
     if (currentLetterPosition >= wordList[currentWordPosition].length) {
       word.removeChild(word.lastChild.previousSibling);
@@ -399,6 +407,8 @@ function loadWords() {
   setTimeout(() => {
     document.getElementById('cursor').style.top = '13px';
     document.getElementById('cursor').style.left = '28px';
+    document.getElementById('redo-button').blur();
+    document.getElementById('jumbotron').focus();
   }, 10);
 }
 

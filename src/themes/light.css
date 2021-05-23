@@ -10,16 +10,29 @@ body {
   background-color: #6b747c;
 }
 
-.current-word {
-  color: blue;
+.letter {
+  color: #484e53;
 }
 
-.incorrect {
+.correct-letter {
+  color: black !important;
+}
+
+.incorrect-letter {
   color: red;
+}
+
+.incorrect > span:not(.space) {
+  text-decoration: underline;
+  text-decoration-color: rgb(255, 67, 67);
 }
 
 .correct {
   color: green;
+}
+
+.cursor {
+  background-color: blue;
 }
 
 i {

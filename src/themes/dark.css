@@ -39,7 +39,7 @@ div,
 }
 
 .incorrect-letter {
-  color: rgb(255, 67, 67);
+  color: #eb3d3d;
 }
 
 .incorrect > span:not(.space) {
@@ -49,6 +49,10 @@ div,
 
 .correct {
   color: rgb(0, 177, 0);
+}
+
+.cursor {
+  background-color: #269feb;
 }
 
 .wrong:focus,
