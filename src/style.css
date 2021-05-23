@@ -79,6 +79,13 @@ canvas {
   font-size: 18px;
 }
 
+.input-group-append {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
 #text-input {
   padding-top: 0px !important;
 }

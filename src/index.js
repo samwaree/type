@@ -6,7 +6,6 @@ const db = require('./js/db.js');
 const Timer = require('tiny-timer').default;
 
 const wordDisplay = document.getElementById('words');
-const textInput = document.getElementById('text-input');
 const highestWPM = document.getElementById('highest-wpm');
 const wordCountButtons = document.getElementById('word-count-select');
 
@@ -30,6 +29,7 @@ let errorCount = 0;
 let wordList;
 let currentWordPosition = 0;
 let currentLetterPosition = 0;
+let currentWordInput = '';
 var testResults = [];
 var resultGraph;
 
@@ -146,10 +146,28 @@ function loadResults() {
  *
  * @param {Object} e keypress event
  */
-document.onkeypress = (e) => {
+document.onkeydown = (e) => {
   e = e || window.event;
-  if (e.key === ' ') {
+  if (e.key === ' ' && onResultsPage) {
     goBackToTest();
+  } else if (e.key === ' ') {
+    e.preventDefault();
+    if (currentWordInput != '') {
+      nextWord();
+      currentWordInput = '';
+    }
+  } else if ((e.keyCode >= 49 && e.keyCode <= 90) || e.keyCode === 8) {
+    if (e.keyCode !== 8) {
+      currentWordInput += e.key;
+    } else {
+      currentWordInput = currentWordInput.slice(0, -1);
+    }
+    if (currentWordPosition == 0 && timer.status != 'running') {
+      timer.start(maxTime);
+    }
+    if (currentWordPosition < wordCount) {
+      handleLetterInput(e.key);
+    }
   }
 };
 
@@ -238,35 +256,11 @@ timer.on('tick', (ms) => {
   testResults.push(results);
 });
 
-// Handles the text input bar
-textInput.addEventListener('input', (e) => {
-  if (e.data === ' ') {
-    e.preventDefault();
-    textInput.value = textInput.value.slice(0, -1);
-    if (textInput.value != '') {
-      nextWord();
-      textInput.value = '';
-    }
-  } else {
-    if (currentWordPosition == 0 && timer.status != 'running') {
-      timer.start(maxTime);
-    }
-    if (currentWordPosition < wordCount) {
-      handleLetterInput(e.data);
-      if (getCurrentWord().startsWith(textInput.value)) {
-        textInput.classList.remove('wrong');
-      } else {
-        textInput.classList.add('wrong');
-      }
-    }
-  }
-});
-
 function handleLetterInput(letter) {
   const childNodes = wordDisplay.childNodes;
   const word = childNodes[currentWordPosition];
 
-  if (letter) {
+  if (letter !== 'Backspace') {
     if (currentLetterPosition >= wordList[currentWordPosition].length) {
       const newLetter = document.createElement('span');
       newLetter.innerHTML = letter;
@@ -284,6 +278,9 @@ function handleLetterInput(letter) {
     }
     currentLetterPosition++;
   } else {
+    if (currentLetterPosition === 0) {
+      return;
+    }
     currentLetterPosition--;
     if (currentLetterPosition >= wordList[currentWordPosition].length) {
       word.removeChild(word.lastChild.previousSibling);
@@ -346,9 +343,7 @@ function goBackToTest() {
   if (onResultsPage) {
     loadWords();
     $('#results').fadeOut(300, (complete) => {
-      $('#main-page').fadeIn(300, () => {
-        textInput.focus();
-      });
+      $('#main-page').fadeIn();
       onResultsPage = false;
       resultGraph.destroy();
     });
@@ -400,10 +395,8 @@ function loadWords() {
   currentWordPosition = 0;
   currentLetterPosition = 0;
   errorCount = 0;
-  textInput.classList.remove('wrong');
-  textInput.value = '';
+  currentWordInput = '';
   setTimeout(() => {
-    textInput.focus();
     document.getElementById('cursor').style.top = '13px';
     document.getElementById('cursor').style.left = '28px';
   }, 10);
@@ -475,7 +468,7 @@ function nextWord() {
     return;
   }
   currentLetterPosition = 0;
-  if (wordList[currentWordPosition] !== textInput.value) {
+  if (wordList[currentWordPosition] !== currentWordInput) {
     errorCount += wordList[currentWordPosition].length;
     if (currentWordPosition + 1 < wordCount) {
       errorCount++;
@@ -509,7 +502,6 @@ function nextWord() {
   } else {
     hightlightCurrentWord(currentWordPosition);
   }
-  textInput.classList.remove('wrong');
 }
 
 /**
