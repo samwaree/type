@@ -19,3 +19,4 @@ Create a [Firebase](https://firebase.google.com/) project, and create a new file
 Run `npm run build-dev` to build the code and start up webpack to watch. Anytime you save files in `src/`, webpack will rebuild.
 
 Your site is now built in the `dist/` directory and you view it by opening `dist/index.html`
+
